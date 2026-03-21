@@ -45,7 +45,9 @@ async function main() {
   };
 
   const fs = require("fs");
-  const deploymentPath = `./deployments-${hre.network.name}.json`;
+  const deploymentsDir = "./deployments";
+  if (!fs.existsSync(deploymentsDir)) fs.mkdirSync(deploymentsDir);
+  const deploymentPath = `${deploymentsDir}/${hre.network.name}.json`;
   fs.writeFileSync(deploymentPath, JSON.stringify(deploymentInfo, null, 2));
   console.log("💾 Deployment info saved to:", deploymentPath);
 

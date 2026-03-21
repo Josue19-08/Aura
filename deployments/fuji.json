@@ -1,0 +1,9 @@
+{
+  "network": "fuji",
+  "chainId": "43113",
+  "contracts": {
+    "ProductRegistry": "0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14"
+  },
+  "deployer": "0x22f6F000609d52A0b0efCD4349222cd9d70716Ba",
+  "timestamp": "2026-03-21T18:48:00.405Z"
+}
