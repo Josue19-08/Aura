@@ -1,0 +1,97 @@
+# Aura Frontend - Complete Project Structure
+
+/Users/josue/Aura/frontend/
+│
+├── 📄 Configuration Files
+│   ├── package.json              # Dependencies & scripts
+│   ├── vite.config.js            # Vite config + path aliases
+│   ├── tailwind.config.js        # Aura brand theme
+│   ├── postcss.config.js         # PostCSS config
+│   ├── .eslintrc.cjs             # ESLint rules
+│   ├── .gitignore                # Git ignore patterns
+│   └── .env.example              # Environment template
+│
+├── 📄 Entry Points
+│   ├── index.html                # HTML template + Google Fonts
+│   ├── src/main.jsx              # React root + RainbowKit
+│   └── src/App.jsx               # Router + layout
+│
+├── 🎨 Styling
+│   └── src/index.css             # Global styles + Tailwind
+│
+├── 📱 Pages (4)
+│   ├── src/pages/Home.jsx        # Landing page
+│   ├── src/pages/Verify.jsx      # Product verification
+│   ├── src/pages/Register.jsx    # Product registration
+│   └── src/pages/Transfer.jsx    # Custody transfer
+│
+├── 🧩 Components (5)
+│   ├── src/components/Header.jsx              # Navigation
+│   ├── src/components/Footer.jsx              # Footer
+│   ├── src/components/WalletConnect.jsx       # RainbowKit button
+│   ├── src/components/VerificationResult.jsx  # Verification display
+│   └── src/components/CustodyTimeline.jsx     # Timeline visual
+│
+├── 🔧 Utilities
+│   ├── src/hooks/useContract.js   # Contract interaction hook
+│   ├── src/utils/api.js          # API client (axios)
+│   └── src/utils/constants.js    # Contract ABI + config
+│
+├── 📖 Documentation
+│   ├── README.md                 # Project overview
+│   ├── SETUP.md                  # Setup guide
+│   ├── IMPLEMENTATION.md         # Implementation details
+│   └── PROJECT_STRUCTURE.txt     # This file
+│
+├── 🖼️ Assets
+│   └── public/
+│       └── favicon.svg           # Aura logo
+│
+└── 🔍 Tools
+    └── verify-setup.sh           # Setup verification script
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Routes:
+  / ...................... Landing page (public)
+  /verify ................ Verification page (public)
+  /verify/:id ............ Verify specific product (public)
+  /register .............. Product registration (wallet required)
+  /transfer .............. Custody transfer (wallet required)
+
+Tech Stack:
+  ⚛️  React 18.3 + Vite 5.2
+  🎨 TailwindCSS 3.4 + Framer Motion 11.0
+  🌐 RainbowKit 2.1 + wagmi 2.9 + viem 2.10
+  📡 axios 1.6 + React Router 6.22
+  📷 qr-scanner 1.4 + qrcode 1.5
+
+Brand Colors:
+  Void ...... #0A0A0F (background)
+  Signal .... #00E5CC (primary)
+  Caution ... #FF6B35 (warnings)
+  Slate ..... #1C1C2E (cards)
+  Fog ....... #8888AA (secondary text)
+  White ..... #F0F0F5 (primary text)
+
+Fonts:
+  Space Grotesk ... Display/Hero
+  IBM Plex Mono ... Technical data
+  DM Sans ......... Interface/Body
+
+Quick Start:
+  1. npm install
+  2. cp .env.example .env
+  3. Configure .env (API_URL, CONTRACT_ADDRESS, WALLETCONNECT_PROJECT_ID)
+  4. npm run dev
+  5. Open http://localhost:5173
+
+Build:
+  npm run build          → dist/ folder
+  npm run preview        → Preview production build
+  vercel --prod          → Deploy to Vercel
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total Files Created: 28
+Status: ✅ Production Ready

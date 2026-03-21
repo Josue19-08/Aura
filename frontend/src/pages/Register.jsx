@@ -1,0 +1,333 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useAccount } from 'wagmi'
+import QRCode from 'qrcode'
+import WalletConnect from '@components/WalletConnect'
+import useContract from '@hooks/useContract'
+import { uploadToIPFS } from '@utils/api'
+
+export default function Register() {
+  const { address, isConnected } = useAccount()
+  const { registerProduct, isLoading: isRegistering } = useContract()
+
+  const [formData, setFormData] = useState({
+    productName: '',
+    lotId: '',
+    origin: '',
+    manufacturingDate: '',
+    expiryDate: '',
+  })
+
+  const [files, setFiles] = useState({
+    certificates: null,
+    images: null,
+  })
+
+  const [ipfsHash, setIpfsHash] = useState(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [productId, setProductId] = useState(null)
+  const [qrCodeUrl, setQrCodeUrl] = useState(null)
+  const [error, setError] = useState(null)
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleFileChange = (e) => {
+    setFiles({
+      ...files,
+      [e.target.name]: e.target.files,
+    })
+  }
+
+  const handleUploadMetadata = async () => {
+    if (!files.certificates && !files.images) {
+      setError('Please upload at least one file')
+      return
+    }
+
+    setIsUploading(true)
+    setError(null)
+
+    try {
+      const metadata = {
+        ...formData,
+        certificates: [],
+        images: [],
+      }
+
+      const hash = await uploadToIPFS(metadata, files)
+      setIpfsHash(hash)
+    } catch (err) {
+      console.error('Upload error:', err)
+      setError(err.message || 'Failed to upload metadata')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleRegister = async () => {
+    if (!ipfsHash) {
+      setError('Please upload metadata first')
+      return
+    }
+
+    setError(null)
+
+    try {
+      const result = await registerProduct(
+        formData.lotId,
+        formData.productName,
+        formData.origin,
+        ipfsHash
+      )
+
+      setProductId(result.productId)
+      await generateQRCode(result.productId)
+    } catch (err) {
+      console.error('Registration error:', err)
+      setError(err.message || 'Failed to register product')
+    }
+  }
+
+  const generateQRCode = async (id) => {
+    try {
+      const qrData = `${window.location.origin}/verify/${id}`
+      const url = await QRCode.toDataURL(qrData, {
+        width: 512,
+        margin: 2,
+        color: {
+          dark: '#00E5CC',
+          light: '#0A0A0F',
+        },
+      })
+      setQrCodeUrl(url)
+    } catch (err) {
+      console.error('QR generation error:', err)
+    }
+  }
+
+  const handleDownloadQR = () => {
+    const link = document.createElement('a')
+    link.download = `aura-product-${productId}.png`
+    link.href = qrCodeUrl
+    link.click()
+  }
+
+  const handleReset = () => {
+    setFormData({
+      productName: '',
+      lotId: '',
+      origin: '',
+      manufacturingDate: '',
+      expiryDate: '',
+    })
+    setFiles({ certificates: null, images: null })
+    setIpfsHash(null)
+    setProductId(null)
+    setQrCodeUrl(null)
+    setError(null)
+  }
+
+  if (!isConnected) {
+    return (
+      <div className="container mx-auto px-6 py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <h1 className="text-h1 font-display mb-6">Register Product</h1>
+          <p className="text-fog mb-8">
+            Connect your wallet to register products on the blockchain
+          </p>
+          <div className="card inline-block">
+            <WalletConnect />
+          </div>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (productId && qrCodeUrl) {
+    return (
+      <div className="container mx-auto px-6 py-12">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <div className="bg-signal/20 border-2 border-signal rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">✓</span>
+          </div>
+          <h1 className="text-h2 font-display mb-4">Product Registered!</h1>
+          <p className="text-fog mb-8">
+            Product ID: <span className="font-mono text-signal">#{productId}</span>
+          </p>
+
+          <div className="card mb-8">
+            <h3 className="text-h3 font-sans mb-6">QR Code</h3>
+            <img
+              src={qrCodeUrl}
+              alt="Product QR Code"
+              className="max-w-xs mx-auto mb-6 rounded-lg"
+            />
+            <button onClick={handleDownloadQR} className="btn-primary">
+              Download QR Code
+            </button>
+          </div>
+
+          <button onClick={handleReset} className="btn-outline">
+            Register Another Product
+          </button>
+        </motion.div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto px-6 py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-3xl mx-auto"
+      >
+        <h1 className="text-h1 font-display mb-4 text-center">
+          Register Product
+        </h1>
+        <p className="text-fog text-center mb-12">
+          Connected: <span className="font-mono text-signal">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+        </p>
+
+        {error && (
+          <div className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6">
+            {error}
+          </div>
+        )}
+
+        <div className="card space-y-6">
+          {/* Product Information */}
+          <div>
+            <label className="label">Product Name</label>
+            <input
+              type="text"
+              name="productName"
+              value={formData.productName}
+              onChange={handleInputChange}
+              placeholder="Ibuprofeno 400mg"
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="label">Lot ID</label>
+              <input
+                type="text"
+                name="lotId"
+                value={formData.lotId}
+                onChange={handleInputChange}
+                placeholder="2026-03-001"
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
+              <label className="label">Origin</label>
+              <input
+                type="text"
+                name="origin"
+                value={formData.origin}
+                onChange={handleInputChange}
+                placeholder="Bogotá, Colombia"
+                className="input-field"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="label">Manufacturing Date</label>
+              <input
+                type="date"
+                name="manufacturingDate"
+                value={formData.manufacturingDate}
+                onChange={handleInputChange}
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
+              <label className="label">Expiry Date</label>
+              <input
+                type="date"
+                name="expiryDate"
+                value={formData.expiryDate}
+                onChange={handleInputChange}
+                className="input-field"
+                required
+              />
+            </div>
+          </div>
+
+          {/* File Uploads */}
+          <div>
+            <label className="label">Certificates (PDF)</label>
+            <input
+              type="file"
+              name="certificates"
+              onChange={handleFileChange}
+              accept=".pdf"
+              multiple
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label className="label">Product Images</label>
+            <input
+              type="file"
+              name="images"
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              className="input-field"
+            />
+          </div>
+
+          {/* IPFS Upload */}
+          <div className="border-t border-fog/20 pt-6">
+            {!ipfsHash ? (
+              <button
+                onClick={handleUploadMetadata}
+                disabled={isUploading}
+                className="btn-secondary w-full disabled:opacity-50"
+              >
+                {isUploading ? 'Uploading to IPFS...' : 'Upload Metadata to IPFS'}
+              </button>
+            ) : (
+              <div className="bg-signal/10 border border-signal rounded-lg p-4">
+                <p className="text-sm text-fog mb-2">IPFS Hash</p>
+                <p className="font-mono text-signal break-all">{ipfsHash}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Register Button */}
+          <button
+            onClick={handleRegister}
+            disabled={!ipfsHash || isRegistering}
+            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isRegistering ? 'Registering...' : 'Register Product'}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
