@@ -1,5 +1,6 @@
 import express from 'express';
 import { contractService } from '../services/contract.js';
+import { ipfsService } from '../services/ipfs.js';
 
 const router = express.Router();
 
@@ -26,6 +27,15 @@ router.get('/', async (req, res) => {
       }
     }
 
+    // Check IPFS service
+    let ipfsReady = false;
+    try {
+      ipfsService.validateConfig();
+      ipfsReady = true;
+    } catch (error) {
+      ipfsReady = false;
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -33,6 +43,7 @@ router.get('/', async (req, res) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         contractReady: isContractReady,
+        ipfsReady,
         network: networkInfo
       }
     });

@@ -20,6 +20,7 @@ export default function Verify() {
     if (urlProductId) {
       handleVerify(urlProductId)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlProductId])
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function Verify() {
   }
 
   const extractProductId = (qrData) => {
-    const match = qrData.match(/product[\/:](\d+)/)
+    const match = qrData.match(/product[/:](\d+)/)
     return match ? match[1] : qrData
   }
 
