@@ -1,5 +1,6 @@
 import express from 'express';
 import { contractService } from '../services/contract.js';
+import { ipfsService } from '../services/ipfs.js';
 import {
   validateProductRegistration,
   validateCustodyTransfer,
@@ -12,10 +13,22 @@ const router = express.Router();
 // Register new product
 router.post('/register', validateProductRegistration, async (req, res, next) => {
   try {
-    const { lotId, productName, origin, ipfsHash } = req.body;
+    const { lotId, productName, origin, metadata } = req.body;
 
     logger.info(`Registering product: ${productName}`);
 
+    // Upload metadata to IPFS first
+    const metadataObject = metadata || {
+      productName,
+      lotId,
+      origin,
+      manufactureDate: new Date().toISOString()
+    };
+
+    const ipfsHash = await ipfsService.uploadMetadata(metadataObject);
+    logger.info(`Metadata uploaded to IPFS: ${ipfsHash}`);
+
+    // Register product on blockchain with IPFS hash
     const result = await contractService.registerProduct(
       lotId,
       productName,
@@ -29,6 +42,7 @@ router.post('/register', validateProductRegistration, async (req, res, next) => 
         productId: result.productId,
         transactionHash: result.transactionHash,
         blockNumber: result.blockNumber,
+        ipfsHash,
         message: 'Product registered successfully'
       }
     });
@@ -94,10 +108,21 @@ router.get('/:id', validateProductId, async (req, res, next) => {
 
     const product = await contractService.getProduct(id);
 
+    // Fetch metadata from IPFS if available
+    let metadata = null;
+    if (product.ipfsHash && product.ipfsHash !== '') {
+      try {
+        metadata = await ipfsService.retrieveMetadata(product.ipfsHash);
+      } catch (error) {
+        logger.warn(`Failed to fetch IPFS metadata for product ${id}`, error);
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: {
-        product
+        product,
+        metadata
       }
     });
   } catch (error) {
@@ -114,9 +139,22 @@ router.get('/:id/history', validateProductId, async (req, res, next) => {
 
     const data = await contractService.getProductWithHistory(id);
 
+    // Fetch metadata from IPFS if available
+    let metadata = null;
+    if (data.product.ipfsHash && data.product.ipfsHash !== '') {
+      try {
+        metadata = await ipfsService.retrieveMetadata(data.product.ipfsHash);
+      } catch (error) {
+        logger.warn(`Failed to fetch IPFS metadata for product ${id}`, error);
+      }
+    }
+
     res.status(200).json({
       success: true,
-      data
+      data: {
+        ...data,
+        metadata
+      }
     });
   } catch (error) {
     next(error);

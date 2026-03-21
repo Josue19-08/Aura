@@ -7,7 +7,7 @@ const isValidAddress = (address) => {
 
 // Validate product registration data
 const validateProductRegistration = (req, res, next) => {
-  const { lotId, productName, origin, ipfsHash } = req.body;
+  const { lotId, productName, origin, metadata } = req.body;
 
   // Check required fields
   if (!lotId || typeof lotId !== 'string' || lotId.trim().length === 0) {
@@ -22,20 +22,15 @@ const validateProductRegistration = (req, res, next) => {
     return next(new AppError('origin is required and must be a non-empty string', 400, 'INVALID_ORIGIN'));
   }
 
-  if (!ipfsHash || typeof ipfsHash !== 'string' || ipfsHash.trim().length === 0) {
-    return next(new AppError('ipfsHash is required and must be a non-empty string', 400, 'INVALID_IPFS_HASH'));
-  }
-
-  // Validate IPFS hash format (basic check)
-  if (!ipfsHash.startsWith('Qm') && !ipfsHash.startsWith('baf')) {
-    return next(new AppError('Invalid IPFS hash format', 400, 'INVALID_IPFS_HASH'));
+  // Metadata is optional, but if provided must be an object
+  if (metadata && typeof metadata !== 'object') {
+    return next(new AppError('metadata must be an object', 400, 'INVALID_METADATA'));
   }
 
   // Trim strings
   req.body.lotId = lotId.trim();
   req.body.productName = productName.trim();
   req.body.origin = origin.trim();
-  req.body.ipfsHash = ipfsHash.trim();
 
   next();
 };

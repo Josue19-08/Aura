@@ -6,9 +6,14 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:ipfs": "node test-ipfs.js"
   },
-  "keywords": ["blockchain", "api", "avalanche"],
+  "keywords": [
+    "blockchain",
+    "api",
+    "avalanche"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
