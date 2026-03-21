@@ -134,7 +134,7 @@ aura/
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| ProductRegistry | TBD | [View on Snowtrace](https://testnet.snowtrace.io) |
+| ProductRegistry | [0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14](https://testnet.snowtrace.io/address/0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14) | [View on Snowtrace](https://testnet.snowtrace.io/address/0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14) |
 
 ### C-Chain Mainnet
 

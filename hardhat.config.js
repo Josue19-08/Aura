@@ -31,12 +31,33 @@ module.exports = {
     apiKey: {
       avalancheFujiTestnet: process.env.SNOWTRACE_API_KEY || "",
       avalanche: process.env.SNOWTRACE_API_KEY || ""
-    }
+    },
+    customChains: [
+      {
+        network: "avalancheFujiTestnet",
+        chainId: 43113,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/testnet/evm/43113/etherscan",
+          browserURL: "https://testnet.snowtrace.io"
+        }
+      },
+      {
+        network: "avalanche",
+        chainId: 43114,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan",
+          browserURL: "https://snowtrace.io"
+        }
+      }
+    ]
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
     currency: "USD",
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
+  },
+  sourcify: {
+    enabled: true
   },
   paths: {
     sources: "./contracts",

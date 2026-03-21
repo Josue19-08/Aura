@@ -53,11 +53,14 @@ RoleManager deployed to: 0x...
 Deployment complete!
 ```
 
-### 5. Verify on Snowtrace
+### 5. Verify on Sourcify (no API key required)
 
 ```bash
 npx hardhat verify --network fuji <CONTRACT_ADDRESS>
 ```
+
+Sourcify verification is enabled in `hardhat.config.js` and requires no API key.
+For Snowtrace/Etherscan verification, add `SNOWTRACE_API_KEY` to your `.env`.
 
 ---
 
@@ -67,8 +70,8 @@ npx hardhat verify --network fuji <CONTRACT_ADDRESS>
 
 | Contract | Address | Verified |
 |----------|---------|----------|
-| ProductRegistry | TBD | ✅ / ⏳ |
-| RoleManager | TBD | ✅ / ⏳ |
+| ProductRegistry | [0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14](https://testnet.snowtrace.io/address/0x8d4f9119E2b74d7A299AC340f4F7c5DBE9539E14) | ✅ Sourcify |
+| RoleManager | TBD | ⏳ |
 
 ### C-Chain Mainnet
 
