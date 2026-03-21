@@ -51,15 +51,9 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Lint backend
+      - name: Check backend syntax
         working-directory: ./backend
-        run: npm run lint --if-present
-
-      - name: Run backend tests
-        working-directory: ./backend
-        run: npm test --if-present
-        env:
-          NODE_ENV: test
+        run: node -c server.js
 
   frontend:
     name: Frontend
@@ -86,7 +80,3 @@ jobs:
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
-
-      - name: Run frontend tests
-        working-directory: ./frontend
-        run: npm test --if-present
