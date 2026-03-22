@@ -3,16 +3,17 @@ import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
 import { logger } from './utils/logger.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { healthRouter } from './routes/health.js';
 import { productsRouter } from './routes/products.js';
 import { contractService } from './services/contract.js';
+import { swaggerSpec } from './config/swagger.js';
 
 // Environment variables are loaded in server.js entry point
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
@@ -25,8 +26,8 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     success: false,
     error: {
@@ -43,10 +44,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 }
 
 // Routes
@@ -74,53 +73,29 @@ app.get('/', (req, res) => {
 app.use('/api/health', healthRouter);
 app.use('/api/products', productsRouter);
 
+// API documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 // Error handlers
 app.use(notFound);
 app.use(errorHandler);
 
-// Initialize and start server
-async function startServer() {
-  try {
-    // Initialize contract service
-    await contractService.initialize();
-    logger.info('Contract service initialized');
+// Initialize contract and start listening — called by server.js, NOT on import
+export async function startServer() {
+  const PORT = process.env.PORT || 3000;
 
-    // Start server
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`Network: ${process.env.NETWORK || 'fuji'}`);
-    });
-  } catch (error) {
-    logger.error('Failed to start server', error);
-    process.exit(1);
-  }
+  await contractService.initialize();
+  logger.info('Contract service initialized');
+
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`Network: ${process.env.NETWORK || 'fuji'}`);
+  });
 }
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM signal received: closing HTTP server');
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  logger.info('SIGINT signal received: closing HTTP server');
-  process.exit(0);
-});
-
-// Start the server
-startServer();
 
 export default app;
