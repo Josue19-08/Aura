@@ -12,6 +12,7 @@ export default function VerificationCounter({
 
   useEffect(() => {
     analyzeVerificationPattern()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verificationCount, createdAt])
 
   const analyzeVerificationPattern = () => {

@@ -1,7 +1,7 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 // Success Animation with Checkmark Reveal
-export function VerificationSuccess({ product, onClose }) {
+export function VerificationSuccess({ product }) {
   // Particle effect positions
   const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
@@ -217,7 +217,7 @@ export function VerificationFailure({ error, onRetry }) {
 }
 
 // QR Code Scan Animation
-export function ScanAnimation({ onComplete }) {
+export function ScanAnimation() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -287,7 +287,7 @@ export function ProductReveal({ children }) {
 }
 
 // Counter Animation Component
-export function AnimatedCounter({ value, duration = 1 }) {
+export function AnimatedCounter({ value }) {
   return (
     <motion.span
       key={value}
