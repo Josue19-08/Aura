@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import { ErrorBoundary } from '@components/ErrorBoundary'
 import { SkipLink } from '@components/AccessibleComponents'
+import BackgroundLighting from '@components/BackgroundLighting'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import Home from '@pages/Home'
@@ -35,6 +36,7 @@ function App() {
     <ErrorBoundary>
       <Router>
         <SkipLink />
+        <BackgroundLighting />
         <Toaster
           position="top-right"
           toastOptions={{
@@ -44,11 +46,11 @@ function App() {
             }
           }}
         />
-        <div className="min-h-screen bg-void text-white font-sans flex flex-col">
+        <div className="min-h-screen text-white font-sans flex flex-col">
           <Header />
           <motion.main
             id="main-content"
-            className="flex-grow"
+            className="flex-grow relative z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
