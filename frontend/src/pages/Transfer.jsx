@@ -5,6 +5,9 @@ import WalletConnect from '@components/WalletConnect'
 import CustodyTimeline from '@components/CustodyTimeline'
 import useContract from '@hooks/useContract'
 import { getProduct } from '@utils/api'
+import { ErrorMessage, SuccessMessage } from '@components/FeedbackMessage'
+import { LoadingButton } from '@components/LoadingStates'
+import { notifyError, notifySuccess } from '@utils/toast'
 
 export default function Transfer() {
   const newCustodianId = useId()
@@ -42,6 +45,7 @@ export default function Transfer() {
     } catch (err) {
       console.error('Load error:', err)
       setError(err.message || 'Failed to load product')
+      notifyError(err)
     } finally {
       setIsLoading(false)
     }
@@ -63,9 +67,11 @@ export default function Transfer() {
     try {
       await transferCustody(productId, newCustodian, location)
       setSuccess(true)
+      notifySuccess('Custody transferred successfully.')
     } catch (err) {
       console.error('Transfer error:', err)
       setError(err.message || 'Failed to transfer custody')
+      notifyError(err)
     }
   }
 
@@ -117,6 +123,13 @@ export default function Transfer() {
             New custodian: <span className="font-mono text-signal">{newCustodian.slice(0, 6)}...{newCustodian.slice(-4)}</span>
           </p>
 
+          <div className="mb-8">
+            <SuccessMessage
+              title="Custody updated"
+              message="Aura recorded the new custodian and location note for this product."
+            />
+          </div>
+
           {product && (
             <div className="card mb-8 text-left">
               <h3 className="text-h3 font-sans mb-6 text-center">Updated Custody Chain</h3>
@@ -151,13 +164,8 @@ export default function Transfer() {
         </p>
 
         {error && (
-          <div
-            id="transfer-error"
-            role="alert"
-            aria-live="polite"
-            className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6"
-          >
-            {error}
+          <div className="mb-6">
+            <ErrorMessage id="transfer-error" error={error} />
           </div>
         )}
 
@@ -175,14 +183,15 @@ export default function Transfer() {
                 className="input-field"
                 aria-label="Product ID"
               />
-              <button
+              <LoadingButton
                 onClick={handleLoadProduct}
-                disabled={isLoading}
+                loading={isLoading}
+                loadingLabel="Loading product..."
                 type="button"
-                className="btn-primary w-full disabled:opacity-50"
+                className="btn-primary w-full"
               >
-                {isLoading ? 'Loading...' : 'Load Product'}
-              </button>
+                Load Product
+              </LoadingButton>
             </div>
           </div>
         )}
@@ -243,14 +252,15 @@ export default function Transfer() {
                     aria-describedby={error ? 'transfer-error' : undefined}
                   />
                 </div>
-                <button
+                <LoadingButton
                   onClick={handleTransfer}
-                  disabled={isTransferring}
+                  loading={isTransferring}
+                  loadingLabel="Transferring custody..."
                   type="button"
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary w-full"
                 >
-                  {isTransferring ? 'Transferring...' : 'Confirm Transfer'}
-                </button>
+                  Confirm Transfer
+                </LoadingButton>
               </div>
             </div>
           </div>

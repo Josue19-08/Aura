@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import QrScanner from 'qr-scanner'
 import VerificationResult from '@components/VerificationResult'
 import { verifyProduct } from '@utils/api'
+import { ErrorMessage } from '@components/FeedbackMessage'
+import { LoadingButton, ResultSkeleton } from '@components/LoadingStates'
+import { notifyError } from '@utils/toast'
 
 export default function Verify() {
   const { productId: urlProductId } = useParams()
@@ -59,6 +62,7 @@ export default function Verify() {
       console.error('Scanner error:', err)
       setError('Camera access denied or not available')
       setIsScanning(false)
+      notifyError(err)
     }
   }
 
@@ -93,6 +97,7 @@ export default function Verify() {
     } catch (err) {
       console.error('Verification error:', err)
       setError(err.message || 'Failed to verify product')
+      notifyError(err)
     } finally {
       setIsLoading(false)
     }
@@ -136,14 +141,16 @@ export default function Verify() {
                   disabled={isLoading}
                   aria-label="Product ID"
                 />
-                <button
+                <LoadingButton
                   onClick={() => handleVerify()}
-                  disabled={isLoading || !productId}
+                  loading={isLoading}
+                  loadingLabel="Verifying..."
+                  disabled={!productId}
                   type="button"
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary w-full"
                 >
-                  {isLoading ? 'Verifying...' : 'Verify Product'}
-                </button>
+                  Verify Product
+                </LoadingButton>
               </div>
             </div>
 
@@ -179,35 +186,13 @@ export default function Verify() {
 
         {/* Error Message */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            role="alert"
-            aria-live="polite"
-            className="bg-caution/20 border border-caution text-caution rounded-lg p-6 mb-8"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠</span>
-              <div>
-                <h3 className="font-semibold mb-1">Error</h3>
-                <p>{error}</p>
-              </div>
-            </div>
-          </motion.div>
+          <div className="mb-8">
+            <ErrorMessage error={error} />
+          </div>
         )}
 
         {/* Loading State */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            aria-live="polite"
-            className="text-center py-12"
-          >
-            <div className="inline-block w-16 h-16 border-4 border-signal/30 border-t-signal rounded-full animate-spin mb-4" />
-            <p className="text-fog">Verifying product...</p>
-          </motion.div>
-        )}
+        {isLoading && <ResultSkeleton />}
 
         {/* Verification Result */}
         {result && (

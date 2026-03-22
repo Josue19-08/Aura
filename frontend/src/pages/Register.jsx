@@ -5,6 +5,9 @@ import QRCode from 'qrcode'
 import WalletConnect from '@components/WalletConnect'
 import useContract from '@hooks/useContract'
 import { uploadToIPFS } from '@utils/api'
+import { ErrorMessage, SuccessMessage } from '@components/FeedbackMessage'
+import { LoadingButton, LoadingOverlay } from '@components/LoadingStates'
+import { notifyError, notifyInfo, notifySuccess } from '@utils/toast'
 
 export default function Register() {
   const { address, isConnected } = useAccount()
@@ -62,9 +65,11 @@ export default function Register() {
 
       const hash = await uploadToIPFS(metadata, files)
       setIpfsHash(hash)
+      notifySuccess('Metadata uploaded to IPFS.')
     } catch (err) {
       console.error('Upload error:', err)
       setError(err.message || 'Failed to upload metadata')
+      notifyError(err)
     } finally {
       setIsUploading(false)
     }
@@ -89,9 +94,11 @@ export default function Register() {
       setProductId(result.productId)
       setTxHash(result.hash)
       await generateQRCode(result.productId)
+      notifySuccess('Product registered successfully.')
     } catch (err) {
       console.error('Registration error:', err)
       setError(err.message || 'Failed to register product')
+      notifyError(err)
     }
   }
 
@@ -133,6 +140,7 @@ export default function Register() {
     setTxHash(null)
     setQrCodeUrl(null)
     setError(null)
+    notifyInfo('Registration form reset.')
   }
 
   if (!isConnected) {
@@ -158,6 +166,7 @@ export default function Register() {
   if (productId && qrCodeUrl) {
     return (
       <div className="container mx-auto px-6 py-12">
+        <LoadingOverlay show={isUploading} label="Uploading metadata to IPFS..." />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -198,6 +207,15 @@ export default function Register() {
             </button>
           </div>
 
+          <div className="mb-8">
+            <SuccessMessage
+              title="Registration confirmed"
+              message="The product is now ready for public verification through its QR code."
+              linkHref={txHash ? `https://testnet.snowtrace.io/tx/${txHash}` : null}
+              linkLabel={txHash ? 'View transaction on Snowtrace' : null}
+            />
+          </div>
+
           <button onClick={handleReset} type="button" className="btn-outline">
             Register Another Product
           </button>
@@ -208,6 +226,7 @@ export default function Register() {
 
   return (
     <div className="container mx-auto px-6 py-12">
+      <LoadingOverlay show={isUploading} label="Uploading metadata to IPFS..." />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -221,13 +240,8 @@ export default function Register() {
         </p>
 
         {error && (
-          <div
-            id="register-error"
-            role="alert"
-            aria-live="polite"
-            className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6"
-          >
-            {error}
+          <div className="mb-6">
+            <ErrorMessage id="register-error" error={error} />
           </div>
         )}
 
@@ -326,13 +340,15 @@ export default function Register() {
           {/* IPFS Upload */}
           <div className="border-t border-fog/20 pt-6">
             {!ipfsHash ? (
-              <button
+              <LoadingButton
                 onClick={handleUploadMetadata}
-                disabled={isUploading}
-                className="btn-secondary w-full disabled:opacity-50"
+                type="button"
+                loading={isUploading}
+                loadingLabel="Uploading metadata..."
+                className="btn-secondary w-full"
               >
-                {isUploading ? 'Uploading to IPFS...' : 'Upload Metadata to IPFS'}
-              </button>
+                Upload Metadata to IPFS
+              </LoadingButton>
             ) : (
               <div className="bg-signal/10 border border-signal rounded-lg p-4">
                 <p className="text-sm text-fog mb-2">IPFS Hash</p>
@@ -342,13 +358,16 @@ export default function Register() {
           </div>
 
           {/* Register Button */}
-          <button
+          <LoadingButton
             onClick={handleRegister}
-            disabled={!ipfsHash || isRegistering}
-            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+            loading={isRegistering}
+            loadingLabel="Registering on-chain..."
+            disabled={!ipfsHash}
+            className="btn-primary w-full"
           >
-            {isRegistering ? 'Registering...' : 'Register Product'}
-          </button>
+            Register Product
+          </LoadingButton>
         </div>
       </motion.div>
     </div>

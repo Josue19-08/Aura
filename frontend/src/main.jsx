@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { Toaster } from 'react-hot-toast'
 import App from './App.jsx'
 import './index.css'
 
@@ -8,6 +9,7 @@ import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rai
 import { WagmiProvider } from 'wagmi'
 import { avalancheFuji, avalanche } from 'wagmi/chains'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import ErrorBoundary from '@components/ErrorBoundary'
 
 const config = getDefaultConfig({
   appName: 'Aura',
@@ -31,12 +33,22 @@ customTheme.colors.modalBorder = '#00E5CC'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={customTheme}>
-          <App />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <ErrorBoundary>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider theme={customTheme}>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  fontFamily: 'DM Sans, sans-serif',
+                },
+              }}
+            />
+            <App />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 )

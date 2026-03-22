@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAccount } from 'wagmi'
 import WalletConnect from '@components/WalletConnect'
 import BatchUpload from '@components/BatchUpload'
+import { ErrorMessage, SuccessMessage } from '@components/FeedbackMessage'
+import { LoadingButton } from '@components/LoadingStates'
 import { registerProductsBatch, exportResultsCSV } from '@utils/batchRegister'
+import { notifyError, notifyInfo, notifySuccess } from '@utils/toast'
 
 function ProgressBar({ progress }) {
   return (
@@ -59,8 +62,10 @@ export default function BatchRegister() {
     try {
       const batchResults = await registerProductsBatch(parsedProducts, setProgress)
       setResults(batchResults)
+      notifySuccess(`Batch registration finished with ${batchResults.successCount} successful products.`)
     } catch (err) {
       setError(err.message || 'Batch registration failed')
+      notifyError(err)
     } finally {
       setIsRegistering(false)
     }
@@ -76,6 +81,7 @@ export default function BatchRegister() {
     link.download = 'aura-batch-results.csv'
     link.click()
     URL.revokeObjectURL(url)
+    notifyInfo('Results CSV downloaded.')
   }
 
   const handleReset = () => {
@@ -119,9 +125,7 @@ export default function BatchRegister() {
         </div>
 
         {error && (
-          <div className="bg-caution/20 border border-caution text-caution rounded-lg p-4">
-            {error}
-          </div>
+          <ErrorMessage error={error} />
         )}
 
         <AnimatePresence mode="wait">
@@ -148,11 +152,16 @@ export default function BatchRegister() {
                 </p>
               </div>
 
+              <SuccessMessage
+                title="Batch summary ready"
+                message="Export the CSV if you need an auditable record of successful and failed rows."
+              />
+
               <div className="flex gap-4 justify-center">
-                <button onClick={handleExportResults} className="btn-secondary">
+                <button onClick={handleExportResults} type="button" className="btn-secondary">
                   Export Results CSV
                 </button>
-                <button onClick={handleReset} className="btn-outline">
+                <button onClick={handleReset} type="button" className="btn-outline">
                   Register Another Batch
                 </button>
               </div>
@@ -222,15 +231,16 @@ export default function BatchRegister() {
               )}
 
               {/* Register button */}
-              <button
+              <LoadingButton
                 onClick={handleRegister}
-                disabled={parsedProducts.length === 0 || isRegistering}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+                loading={isRegistering}
+                loadingLabel={`Registering… (${progress?.current || 0}/${progress?.total || 0})`}
+                disabled={parsedProducts.length === 0}
+                className="btn-primary w-full"
               >
-                {isRegistering
-                  ? `Registering… (${progress?.current || 0}/${progress?.total || 0})`
-                  : `Register ${parsedProducts.length || 0} Product${parsedProducts.length !== 1 ? 's' : ''}`}
-              </button>
+                {`Register ${parsedProducts.length || 0} Product${parsedProducts.length !== 1 ? 's' : ''}`}
+              </LoadingButton>
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,8 +1,9 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
+import { notifyError } from '@utils/toast'
 
 const Home = lazy(() => import('@pages/Home'))
 const Verify = lazy(() => import('@pages/Verify'))
@@ -21,6 +22,16 @@ function RouteFallback() {
 }
 
 function App() {
+  useEffect(() => {
+    const handleUnhandledRejection = (event) => {
+      console.error('Unhandled promise rejection', event.reason)
+      notifyError(event.reason)
+    }
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+  }, [])
+
   return (
     <Router>
       <div className="min-h-screen bg-void text-white font-sans flex flex-col">
