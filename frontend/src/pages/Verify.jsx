@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import QrScanner from 'qr-scanner'
@@ -9,6 +9,7 @@ import { LoadingButton, ResultSkeleton } from '@components/LoadingStates'
 import { notifyError } from '@utils/toast'
 
 export default function Verify() {
+  const productIdInputId = useId()
   const { productId: urlProductId } = useParams()
   const navigate = useNavigate()
   const [productId, setProductId] = useState(urlProductId || '')
@@ -131,7 +132,9 @@ export default function Verify() {
             <div className="card">
               <h3 className="text-h3 font-sans mb-4">Enter Product ID</h3>
               <div className="space-y-4">
+                <label htmlFor={productIdInputId} className="label">Product ID</label>
                 <input
+                  id={productIdInputId}
                   type="text"
                   placeholder="Product ID"
                   value={productId}
@@ -139,7 +142,8 @@ export default function Verify() {
                   onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
                   className="input-field"
                   disabled={isLoading}
-                  aria-label="Product ID"
+                  inputMode="numeric"
+                  enterKeyHint="search"
                 />
                 <LoadingButton
                   onClick={() => handleVerify()}

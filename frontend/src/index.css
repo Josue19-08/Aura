@@ -21,6 +21,10 @@ html {
   scroll-behavior: smooth;
 }
 
+body:has([role="dialog"]) {
+  overflow: hidden;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--color-void);
@@ -40,15 +44,15 @@ code, .mono {
 
 @layer components {
   .btn-primary {
-    @apply bg-signal text-void px-6 py-3 rounded-lg font-medium hover:bg-signal/90 transition-all duration-200 hover:scale-105;
+    @apply bg-signal text-void px-6 py-3 rounded-lg font-medium hover:bg-signal/90 transition-all duration-200 hover:scale-105 min-h-[44px];
   }
 
   .btn-secondary {
-    @apply bg-slate text-white px-6 py-3 rounded-lg font-medium hover:bg-slate/80 transition-all duration-200 border border-fog/20;
+    @apply bg-slate text-white px-6 py-3 rounded-lg font-medium hover:bg-slate/80 transition-all duration-200 border border-fog/20 min-h-[44px];
   }
 
   .btn-outline {
-    @apply border-2 border-signal text-signal px-6 py-3 rounded-lg font-medium hover:bg-signal hover:text-void transition-all duration-200;
+    @apply border-2 border-signal text-signal px-6 py-3 rounded-lg font-medium hover:bg-signal hover:text-void transition-all duration-200 min-h-[44px];
   }
 
   .card {
@@ -56,7 +60,7 @@ code, .mono {
   }
 
   .input-field {
-    @apply w-full bg-void border border-fog/30 rounded-lg px-4 py-3 text-white placeholder-fog focus:outline-none focus:border-signal transition-all duration-200;
+    @apply w-full bg-void border border-fog/30 rounded-lg px-4 py-3 text-white placeholder-fog focus:outline-none focus:border-signal transition-all duration-200 min-h-[44px];
   }
 
   .label {
@@ -77,6 +81,10 @@ code, .mono {
 
   .status-notfound {
     @apply bg-fog/20 text-fog border border-fog/30;
+  }
+
+  .skip-link {
+    @apply fixed left-4 top-4 z-[80] bg-signal text-void px-4 py-3 rounded-lg font-medium -translate-y-24 focus:translate-y-0 transition-transform duration-200;
   }
 }
 
@@ -157,4 +165,23 @@ code, .mono {
     var(--color-slate) 36%
   );
   background-size: 1000px 100%;
+}
+
+:where(a, button, input, textarea, select, [role="button"]):focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

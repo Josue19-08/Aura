@@ -1,8 +1,9 @@
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
+import KeyboardHelpDialog from '@components/KeyboardHelpDialog'
 import { notifyError } from '@utils/toast'
 
 const Home = lazy(() => import('@pages/Home'))
@@ -22,6 +23,8 @@ function RouteFallback() {
 }
 
 function App() {
+  const [isKeyboardHelpOpen, setIsKeyboardHelpOpen] = useState(false)
+
   useEffect(() => {
     const handleUnhandledRejection = (event) => {
       console.error('Unhandled promise rejection', event.reason)
@@ -32,11 +35,34 @@ function App() {
     return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection)
   }, [])
 
+  useEffect(() => {
+    const handleKeyboardHelp = (event) => {
+      if (event.key === '?' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        const tagName = document.activeElement?.tagName
+        if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+          return
+        }
+
+        event.preventDefault()
+        setIsKeyboardHelpOpen(true)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyboardHelp)
+    return () => window.removeEventListener('keydown', handleKeyboardHelp)
+  }, [])
+
   return (
     <Router>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      <KeyboardHelpDialog open={isKeyboardHelpOpen} onClose={() => setIsKeyboardHelpOpen(false)} />
       <div className="min-h-screen bg-void text-white font-sans flex flex-col">
-        <Header />
+        <Header onOpenKeyboardHelp={() => setIsKeyboardHelpOpen(true)} />
         <motion.main
+          id="main-content"
+          tabIndex="-1"
           className="flex-grow"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

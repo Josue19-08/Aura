@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAccount } from 'wagmi'
 import QRCode from 'qrcode'
@@ -10,6 +10,13 @@ import { LoadingButton, LoadingOverlay } from '@components/LoadingStates'
 import { notifyError, notifyInfo, notifySuccess } from '@utils/toast'
 
 export default function Register() {
+  const productNameId = useId()
+  const lotIdId = useId()
+  const originId = useId()
+  const manufacturingDateId = useId()
+  const expiryDateId = useId()
+  const certificatesId = useId()
+  const imagesId = useId()
   const { address, isConnected } = useAccount()
   const { registerProduct, isLoading: isRegistering } = useContract()
 
@@ -248,8 +255,9 @@ export default function Register() {
         <div className="card space-y-6">
           {/* Product Information */}
           <div>
-            <label className="label">Product Name</label>
+            <label htmlFor={productNameId} className="label">Product Name</label>
             <input
+              id={productNameId}
               type="text"
               name="productName"
               value={formData.productName}
@@ -262,20 +270,23 @@ export default function Register() {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="label">Lot ID</label>
+              <label htmlFor={lotIdId} className="label">Lot ID</label>
               <input
+                id={lotIdId}
                 type="text"
                 name="lotId"
                 value={formData.lotId}
                 onChange={handleInputChange}
                 placeholder="2026-03-001"
                 className="input-field"
+                autoCapitalize="characters"
                 required
               />
             </div>
             <div>
-              <label className="label">Origin</label>
+              <label htmlFor={originId} className="label">Origin</label>
               <input
+                id={originId}
                 type="text"
                 name="origin"
                 value={formData.origin}
@@ -289,8 +300,9 @@ export default function Register() {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="label">Manufacturing Date</label>
+              <label htmlFor={manufacturingDateId} className="label">Manufacturing Date</label>
               <input
+                id={manufacturingDateId}
                 type="date"
                 name="manufacturingDate"
                 value={formData.manufacturingDate}
@@ -300,8 +312,9 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="label">Expiry Date</label>
+              <label htmlFor={expiryDateId} className="label">Expiry Date</label>
               <input
+                id={expiryDateId}
                 type="date"
                 name="expiryDate"
                 value={formData.expiryDate}
@@ -314,8 +327,9 @@ export default function Register() {
 
           {/* File Uploads */}
           <div>
-            <label className="label">Certificates (PDF)</label>
+            <label htmlFor={certificatesId} className="label">Certificates (PDF)</label>
             <input
+              id={certificatesId}
               type="file"
               name="certificates"
               onChange={handleFileChange}
@@ -326,8 +340,9 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="label">Product Images</label>
+            <label htmlFor={imagesId} className="label">Product Images</label>
             <input
+              id={imagesId}
               type="file"
               name="images"
               onChange={handleFileChange}
