@@ -8,19 +8,18 @@ import { AppError } from '../middleware/errorHandler.js';
  * Uses Pinata API for reliable pinning and availability.
  */
 class IPFSService {
-  constructor() {
-    this.pinataApiKey = process.env.PINATA_API_KEY;
-    this.pinataSecretKey = process.env.PINATA_SECRET_KEY;
-    this.pinataJwt = process.env.PINATA_JWT;
-    this.ipfsGateway = process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs';
-  }
+  constructor() {}
 
   /**
    * Validate IPFS service configuration
    * @throws {Error} If API keys are not configured
    */
   validateConfig() {
-    if (!this.pinataJwt && (!this.pinataApiKey || !this.pinataSecretKey)) {
+    // Read env vars lazily (after dotenv.config() has run)
+    const jwt = process.env.PINATA_JWT;
+    const key = process.env.PINATA_API_KEY;
+    const secret = process.env.PINATA_SECRET_KEY;
+    if (!jwt && (!key || !secret)) {
       throw new Error('Pinata credentials not configured. Set PINATA_JWT or PINATA_API_KEY/PINATA_SECRET_KEY');
     }
   }
@@ -30,15 +29,16 @@ class IPFSService {
    * @returns {Object} Headers object with authorization
    */
   getAuthHeaders() {
-    if (this.pinataJwt) {
+    const jwt = process.env.PINATA_JWT;
+    if (jwt) {
       return {
-        'Authorization': `Bearer ${this.pinataJwt}`,
+        'Authorization': `Bearer ${jwt}`,
         'Content-Type': 'application/json'
       };
     }
     return {
-      'pinata_api_key': this.pinataApiKey,
-      'pinata_secret_api_key': this.pinataSecretKey,
+      'pinata_api_key': process.env.PINATA_API_KEY,
+      'pinata_secret_api_key': process.env.PINATA_SECRET_KEY,
       'Content-Type': 'application/json'
     };
   }
@@ -114,7 +114,7 @@ class IPFSService {
 
       logger.info('Retrieving metadata from IPFS', { cid });
 
-      const url = `${this.ipfsGateway}/${cid}`;
+      const url = `${(process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs')}/${cid}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -147,7 +147,7 @@ class IPFSService {
    * @returns {string} Public URL
    */
   getPublicUrl(cid) {
-    return `${this.ipfsGateway}/${cid}`;
+    return `${(process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs')}/${cid}`;
   }
 
   /**

@@ -24,14 +24,16 @@ class ContractService {
   constructor() {
     this.provider = null;
     this.contract = null;
-    this.contractAddress = process.env.CONTRACT_ADDRESS;
-    this.rpcUrl = process.env.AVALANCHE_RPC_URL;
-    this.privateKey = process.env.PRIVATE_KEY;
   }
 
   // Initialize contract connection
   async initialize() {
     try {
+      // Read env vars here (after dotenv.config() has run in server.js)
+      this.contractAddress = process.env.CONTRACT_ADDRESS;
+      this.rpcUrl = process.env.AVALANCHE_RPC_URL;
+      this.privateKey = process.env.PRIVATE_KEY;
+
       if (!this.rpcUrl) {
         throw new Error('AVALANCHE_RPC_URL not configured');
       }

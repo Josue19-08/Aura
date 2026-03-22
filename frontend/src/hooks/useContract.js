@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi'
+import { parseEventLogs } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@utils/constants'
 
 export default function useContract() {
@@ -31,13 +32,15 @@ export default function useContract() {
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
       // Parse logs to get product ID
-      const log = receipt.logs.find(
-        (log) => log.topics[0] === CONTRACT_ABI.find(
-          (item) => item.name === 'ProductRegistered'
-        )?.topics?.[0]
-      )
+      const parsedLogs = parseEventLogs({
+        abi: CONTRACT_ABI,
+        eventName: 'ProductRegistered',
+        logs: receipt.logs,
+      })
 
-      const productId = log ? parseInt(log.topics[1], 16) : null
+      const productId = parsedLogs[0]?.args?.productId !== undefined
+        ? Number(parsedLogs[0].args.productId)
+        : null
 
       return { hash, productId, receipt }
     } catch (err) {
