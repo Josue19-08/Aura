@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import WalletConnect from './WalletConnect'
 
 export default function Header({ onOpenKeyboardHelp }) {
   const location = useLocation()
@@ -53,7 +52,6 @@ export default function Header({ onOpenKeyboardHelp }) {
             <button type="button" onClick={onOpenKeyboardHelp} className="text-fog hover:text-white transition-colors">
               Shortcuts
             </button>
-            <WalletConnect />
           </div>
         </div>
 
@@ -83,7 +81,9 @@ export default function Header({ onOpenKeyboardHelp }) {
             <button type="button" onClick={onOpenKeyboardHelp} className="btn-outline w-full">
               Keyboard Shortcuts
             </button>
-            <WalletConnect />
+            <Link to="/register" className="btn-primary w-full text-center">
+              Open Wallet Tools
+            </Link>
           </div>
         </div>
       </nav>

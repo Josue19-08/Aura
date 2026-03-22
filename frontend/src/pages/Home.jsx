@@ -1,8 +1,9 @@
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
 
 export default function Home() {
+  const reduceMotion = useReducedMotion()
   // Mouse spotlight tracking
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -12,6 +13,10 @@ export default function Home() {
   const mouseYSpring = useSpring(mouseY, springConfig)
 
   useEffect(() => {
+    if (reduceMotion) {
+      return undefined
+    }
+
     const handleMouseMove = (e) => {
       mouseX.set(e.clientX)
       mouseY.set(e.clientY)
@@ -19,8 +24,7 @@ export default function Home() {
 
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mouseX, mouseY, reduceMotion])
 
   return (
     <>
@@ -28,30 +32,32 @@ export default function Home() {
       <div className="fixed inset-0 z-0 bg-[#0A0A0F]" />
 
       {/* Mouse Spotlight Effect */}
-      <motion.div
-        className="fixed top-0 left-0 w-[400px] h-[400px] pointer-events-none z-5"
-        style={{
-          x: mouseXSpring,
-          y: mouseYSpring,
-          translateX: '-50%',
-          translateY: '-50%'
-        }}
-      >
-        <div
-          className="w-full h-full rounded-full"
+      {!reduceMotion && (
+        <motion.div
+          className="fixed top-0 left-0 w-[400px] h-[400px] pointer-events-none z-5"
           style={{
-            background: 'radial-gradient(circle, rgba(0, 229, 204, 0.08) 0%, rgba(0, 229, 204, 0.04) 30%, transparent 60%)',
-            filter: 'blur(40px)'
+            x: mouseXSpring,
+            y: mouseYSpring,
+            translateX: '-50%',
+            translateY: '-50%'
           }}
-        />
-      </motion.div>
+        >
+          <div
+            className="w-full h-full rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(0, 229, 204, 0.08) 0%, rgba(0, 229, 204, 0.04) 30%, transparent 60%)',
+              filter: 'blur(40px)'
+            }}
+          />
+        </motion.div>
+      )}
 
       {/* FIXED Sunrise Light - ALWAYS VISIBLE */}
       <div className="fixed inset-0 z-10 pointer-events-none">
         {/* Main radial glow covering 1/4 of page from bottom right */}
         <motion.div
           className="absolute inset-0"
-          animate={{
+          animate={reduceMotion ? { opacity: 0.35 } : {
             opacity: [0.2, 0.8, 0.2],
           }}
           transition={{
@@ -68,7 +74,7 @@ export default function Home() {
         {/* Secondary layer for depth */}
         <motion.div
           className="absolute inset-0"
-          animate={{
+          animate={reduceMotion ? { opacity: 0.22 } : {
             opacity: [0.15, 0.7, 0.15],
           }}
           transition={{
@@ -86,7 +92,7 @@ export default function Home() {
         {/* Deformed organic layer */}
         <motion.div
           className="absolute inset-0"
-          animate={{
+          animate={reduceMotion ? { opacity: 0.2 } : {
             opacity: [0.2, 0.75, 0.2],
           }}
           transition={{
@@ -104,7 +110,7 @@ export default function Home() {
         {/* Concentrated bottom-right glow */}
         <motion.div
           className="absolute bottom-0 right-0 w-[50vw] h-[50vh]"
-          animate={{
+          animate={reduceMotion ? { opacity: 0.35, scale: 1 } : {
             opacity: [0.3, 0.9, 0.3],
             scale: [1, 1.15, 1],
           }}
@@ -165,7 +171,7 @@ export default function Home() {
             >
               <Link to="/verify">
                 <motion.div
-                  whileHover={{ x: 5 }}
+                  whileHover={reduceMotion ? undefined : { x: 5 }}
                   className="inline-flex items-center gap-4 group"
                 >
                   <div className="px-8 py-4 bg-signal/10 hover:bg-signal/20 transition-colors duration-300 backdrop-blur-sm">
@@ -174,7 +180,7 @@ export default function Home() {
                     </span>
                   </div>
                   <motion.div
-                    animate={{ x: [0, 5, 0] }}
+                    animate={reduceMotion ? { x: 0 } : { x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                     className="text-signal text-3xl"
                   >

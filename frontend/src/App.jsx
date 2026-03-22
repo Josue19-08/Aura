@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import KeyboardHelpDialog from '@components/KeyboardHelpDialog'
+import WalletRoute from '@components/WalletRoute'
 import { notifyError } from '@utils/toast'
 
 const Home = lazy(() => import('@pages/Home'))
@@ -73,10 +74,10 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/verify" element={<Verify />} />
               <Route path="/verify/:productId" element={<Verify />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/transfer" element={<Transfer />} />
+              <Route path="/register" element={<WalletRoute><Register /></WalletRoute>} />
+              <Route path="/transfer" element={<WalletRoute><Transfer /></WalletRoute>} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/batch-register" element={<BatchRegister />} />
+              <Route path="/batch-register" element={<WalletRoute><BatchRegister /></WalletRoute>} />
             </Routes>
           </Suspense>
         </motion.main>

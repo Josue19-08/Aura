@@ -1,6 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 export default function CustodyTimeline({ history }) {
+  const reduceMotion = useReducedMotion()
+
   if (!history || history.length === 0) {
     return <p className="text-fog">No custody history available</p>
   }
@@ -10,9 +12,9 @@ export default function CustodyTimeline({ history }) {
       {history.map((record, index) => (
         <motion.div
           key={index}
-          initial={{ opacity: 0, x: -20 }}
+          initial={reduceMotion ? false : { opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: index * 0.1 }}
+          transition={{ delay: reduceMotion ? 0 : index * 0.08 }}
           className="relative pl-8"
         >
           {/* Timeline Line */}

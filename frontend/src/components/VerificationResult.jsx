@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion'
+import { animate, motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import CustodyTimeline from './CustodyTimeline'
 
 export default function VerificationResult({ result }) {
+  const reduceMotion = useReducedMotion()
   const { status, product, custodyHistory, verificationCount } = result
 
   const getStatusConfig = () => {
@@ -42,7 +44,7 @@ export default function VerificationResult({ result }) {
   if (status === 'not_found') {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className={`${statusConfig.bgClass} ${statusConfig.borderClass} border-2 rounded-lg p-8`}
       >
@@ -74,15 +76,20 @@ export default function VerificationResult({ result }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-6"
     >
       {/* Status Header */}
       <div className={`${statusConfig.bgClass} ${statusConfig.borderClass} border-2 rounded-lg p-8 text-center`}>
-        <div className={`${statusConfig.iconBg} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6`}>
+        <motion.div
+          initial={reduceMotion ? false : { scale: 0.7, rotate: status === 'authentic' ? -12 : 0 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 0.4 }}
+          className={`${statusConfig.iconBg} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6`}
+        >
           <span className="text-4xl text-void">{statusConfig.icon}</span>
-        </div>
+        </motion.div>
         <h2 className={`text-h2 font-display ${statusConfig.textClass} mb-2`}>
           {statusConfig.title}
         </h2>
@@ -111,7 +118,7 @@ export default function VerificationResult({ result }) {
           />
           <DetailRow
             label="Verification Count"
-            value={verificationCount}
+            value={<AnimatedCounter value={verificationCount} />}
             highlight={verificationCount > 100}
           />
         </div>
@@ -171,4 +178,25 @@ function DetailRow({ label, value, mono = false, highlight = false }) {
       </span>
     </div>
   )
+}
+
+function AnimatedCounter({ value }) {
+  const reduceMotion = useReducedMotion()
+  const [displayValue, setDisplayValue] = useState(reduceMotion ? value : 0)
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setDisplayValue(value)
+      return
+    }
+
+    const controls = animate(0, value, {
+      duration: 0.6,
+      onUpdate: (latest) => setDisplayValue(Math.round(latest)),
+    })
+
+    return () => controls.stop()
+  }, [reduceMotion, value])
+
+  return displayValue.toLocaleString()
 }
