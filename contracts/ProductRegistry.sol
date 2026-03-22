@@ -11,27 +11,40 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * @dev Manages product registration, custody transfers, and verification
  */
 contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
-    // Roles
+    /// @notice Role allowed to mint new product identities on-chain.
     bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
+    /// @notice Reserved role for downstream actors that may receive future write capabilities.
     bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
 
-    // Product structure
+    /// @notice Immutable product identity plus mutable verification state.
     struct Product {
+        /// @dev Sequential identifier assigned at registration time.
         uint256 id;
+        /// @dev Manufacturer batch identifier used for audits and recalls.
         string lotId;
+        /// @dev Human-readable commercial name.
         string productName;
+        /// @dev Origin or manufacturing location captured at registration.
         string origin;
+        /// @dev IPFS CID pointing to extended metadata and certificates.
         string ipfsHash;
+        /// @dev Wallet that created the product record.
         address manufacturer;
+        /// @dev Block timestamp for the initial registration.
         uint256 createdAt;
+        /// @dev Number of public verifications executed through `verifyProduct`.
         uint256 verificationCount;
+        /// @dev Emergency switch used by admins to block further transfers.
         bool active;
     }
 
-    // Custody record structure
+    /// @notice Single custody handoff recorded in chronological order.
     struct CustodyRecord {
+        /// @dev Wallet that became responsible for the product at this step.
         address custodian;
+        /// @dev Block timestamp for the custody update.
         uint256 timestamp;
+        /// @dev Free-form operational note such as warehouse or city.
         string locationNote;
     }
 
@@ -42,7 +55,7 @@ contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
     
     uint256 private _productIdCounter;
 
-    // Events
+    /// @notice Emitted when a manufacturer registers a new product.
     event ProductRegistered(
         uint256 indexed productId,
         string lotId,
@@ -50,6 +63,7 @@ contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
         uint256 timestamp
     );
 
+    /// @notice Emitted whenever custody changes hands.
     event CustodyTransferred(
         uint256 indexed productId,
         address indexed fromCustodian,
@@ -58,6 +72,7 @@ contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
         uint256 timestamp
     );
 
+    /// @notice Emitted on every public verification and includes the updated counter.
     event ProductVerified(
         uint256 indexed productId,
         address verifier,
@@ -65,17 +80,22 @@ contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
         uint256 timestamp
     );
 
+    /// @notice Emitted when an admin deactivates a product.
     event ProductDeactivated(
         uint256 indexed productId,
         uint256 timestamp
     );
 
-    // Custom errors
+    /// @notice Raised when a product ID does not exist in storage.
     error ProductNotFound(uint256 productId);
+    /// @notice Raised when a transfer caller is not the current custodian.
     error NotCurrentCustodian(address caller, address currentCustodian);
+    /// @notice Raised when a zero address is supplied for a custody transfer.
     error InvalidAddress();
+    /// @notice Raised when an operation targets a product that was deactivated by an admin.
     error ProductInactive(uint256 productId);
 
+    /// @notice Grants the deployer the default admin role.
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -168,6 +188,7 @@ contract ProductRegistry is AccessControl, ReentrancyGuard, Pausable {
 
     /**
      * @notice Verify product authenticity and get complete history
+     * @dev This call increments `verificationCount` and emits `ProductVerified`.
      * @param productId Product to verify
      * @return exists Whether product is registered
      * @return product Product data

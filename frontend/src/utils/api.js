@@ -9,6 +9,12 @@ const api = axios.create({
   },
 })
 
+/**
+ * Normalizes axios responses so callers can consume backend payloads without
+ * repeating `.data` checks in every screen.
+ */
+const unwrapData = (response) => response?.data ?? response
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
@@ -19,7 +25,7 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor
+// Preserve backend error codes so shared UI error messaging can stay specific.
 api.interceptors.response.use(
   (response) => {
     return response.data
@@ -42,8 +48,6 @@ api.interceptors.response.use(
     return Promise.reject(apiError)
   }
 )
-
-const unwrapData = (response) => response?.data ?? response
 
 // Product APIs
 export const verifyProduct = async (productId) => {

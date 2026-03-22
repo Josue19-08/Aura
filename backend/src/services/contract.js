@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { logger } from '../utils/logger.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-// ProductRegistry ABI - Core functions needed
+// ProductRegistry ABI - limited to the calls exercised by the API layer.
 const PRODUCT_REGISTRY_ABI = [
   // Read functions
   'function getProduct(uint256 productId) view returns (tuple(uint256 id, string lotId, string productName, string origin, string ipfsHash, address manufacturer, uint256 createdAt, uint256 verificationCount, bool active))',
@@ -20,6 +20,7 @@ const PRODUCT_REGISTRY_ABI = [
   'event ProductVerified(uint256 indexed productId, address verifier, uint256 newCount, uint256 timestamp)'
 ];
 
+// Verification counts above this threshold are treated as suspicious by the API.
 const FRAUD_THRESHOLD = 100;
 
 class ContractService {
@@ -28,7 +29,11 @@ class ContractService {
     this.contract = null;
   }
 
-  // Initialize contract connection
+  /**
+   * Bootstraps a read-only contract instance and shared JSON-RPC provider.
+   * The signer is created lazily for write operations so startup can still
+   * succeed in read-mostly environments.
+   */
   async initialize() {
     try {
       // Read env vars here (after dotenv.config() has run in server.js)
@@ -65,7 +70,9 @@ class ContractService {
     }
   }
 
-  // Get signer for write operations
+  /**
+   * Returns the wallet used for write operations against the contract.
+   */
   getSigner() {
     if (!this.privateKey) {
       throw new AppError('PRIVATE_KEY not configured', 500, 'MISSING_PRIVATE_KEY');
@@ -74,7 +81,10 @@ class ContractService {
     return new ethers.Wallet(this.privateKey, this.provider);
   }
 
-  // Register new product
+  /**
+   * Registers a product on-chain and normalizes the emitted event into
+   * a JSON-safe response shape for the REST API.
+   */
   async registerProduct(lotId, productName, origin, ipfsHash) {
     try {
       const signer = this.getSigner();
@@ -119,7 +129,9 @@ class ContractService {
     }
   }
 
-  // Transfer custody
+  /**
+   * Submits a custody transfer transaction from the configured backend signer.
+   */
   async transferCustody(productId, newCustodian, locationNote) {
     try {
       const signer = this.getSigner();
@@ -162,7 +174,11 @@ class ContractService {
     }
   }
 
-  // Verify product (increments counter)
+  /**
+   * Verifies a product through the state-changing contract method, then re-reads
+   * the product snapshot so the API returns the incremented counter and latest
+   * custody chain in a single response.
+   */
   async verifyProduct(productId) {
     try {
       const signer = this.getSigner();
@@ -195,7 +211,10 @@ class ContractService {
     }
   }
 
-  // Get product data (read-only)
+  /**
+   * Reads a product tuple from the contract and converts bigint fields into
+   * primitives the API can serialize directly.
+   */
   async getProduct(productId) {
     try {
       const product = await this.contract.getProduct(productId);
@@ -234,7 +253,9 @@ class ContractService {
     }
   }
 
-  // Get custody history (read-only)
+  /**
+   * Returns the full custody chain with bigint timestamps normalized to numbers.
+   */
   async getCustodyHistory(productId) {
     try {
       const history = await this.contract.getCustodyHistory(productId);
@@ -254,7 +275,9 @@ class ContractService {
     }
   }
 
-  // Get current custodian (read-only)
+  /**
+   * Returns the current custodian address for a product.
+   */
   async getCurrentCustodian(productId) {
     try {
       const custodian = await this.contract.currentCustodian(productId);
@@ -269,7 +292,10 @@ class ContractService {
     }
   }
 
-  // Get complete product info with history
+  /**
+   * Aggregates the product snapshot, custody history, and current custodian so
+   * route handlers do not need to coordinate multiple service calls.
+   */
   async getProductWithHistory(productId) {
     try {
       const [product, history, custodian] = await Promise.all([

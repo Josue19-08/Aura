@@ -3,6 +3,11 @@ import { useAccount, useWalletClient, usePublicClient } from 'wagmi'
 import { parseEventLogs } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@utils/constants'
 
+/**
+ * Wraps the contract write/read flows used by wallet-gated routes.
+ * The hook keeps error objects intact so UI layers can map contract and wallet
+ * failures into actionable inline messages and toasts.
+ */
 export default function useContract() {
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
@@ -31,7 +36,8 @@ export default function useContract() {
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
-      // Parse logs to get product ID
+      // Parse the emitted event instead of trusting positional return data so
+      // the UI remains compatible with wallet providers that only expose the receipt.
       const parsedLogs = parseEventLogs({
         abi: CONTRACT_ABI,
         eventName: 'ProductRegistered',

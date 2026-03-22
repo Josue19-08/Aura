@@ -46,3 +46,6 @@ Project organization and file structure.
 
 ### [Setup Guide](./setup.md)
 Detailed setup instructions for development environment.
+
+### [Testing Guide](./testing.md)
+Local commands, CI coverage, browser matrix, and manual QA expectations.
