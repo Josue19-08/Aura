@@ -39,7 +39,9 @@ class ContractService {
       }
 
       if (!this.contractAddress) {
-        throw new Error('CONTRACT_ADDRESS not configured');
+        logger.warn('CONTRACT_ADDRESS not configured - contract features will be unavailable');
+        logger.warn('Complete Issue #2 (Deploy contracts) to enable blockchain features');
+        return; // Skip contract initialization
       }
 
       // Create provider
