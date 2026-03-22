@@ -5,8 +5,13 @@ yarn.lock
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.*.local
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
 
 # Hardhat
 cache/

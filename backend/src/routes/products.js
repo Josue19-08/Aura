@@ -237,7 +237,11 @@ router.post('/:id/verify', validateProductId, async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
+        status: result.status,
         product: result.product,
+        custodyHistory: result.custodyHistory,
+        currentCustodian: result.currentCustodian,
+        verificationCount: result.verificationCount,
         transactionHash: result.transactionHash,
         message: 'Product verified successfully'
       }

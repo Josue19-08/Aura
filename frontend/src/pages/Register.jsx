@@ -193,12 +193,12 @@ export default function Register() {
               alt="Product QR Code"
               className="max-w-xs mx-auto mb-6 rounded-lg"
             />
-            <button onClick={handleDownloadQR} className="btn-primary">
+            <button onClick={handleDownloadQR} type="button" className="btn-primary">
               Download QR Code
             </button>
           </div>
 
-          <button onClick={handleReset} className="btn-outline">
+          <button onClick={handleReset} type="button" className="btn-outline">
             Register Another Product
           </button>
         </motion.div>
@@ -221,7 +221,12 @@ export default function Register() {
         </p>
 
         {error && (
-          <div className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6">
+          <div
+            id="register-error"
+            role="alert"
+            aria-live="polite"
+            className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6"
+          >
             {error}
           </div>
         )}

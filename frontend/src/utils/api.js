@@ -30,13 +30,24 @@ api.interceptors.response.use(
   }
 )
 
+const unwrapData = (response) => response?.data ?? response
+
 // Product APIs
 export const verifyProduct = async (productId) => {
-  return api.get(`/products/verify/${productId}`)
+  const response = await api.post(`/products/${productId}/verify`)
+  return unwrapData(response)
 }
 
 export const getProduct = async (productId) => {
-  return api.get(`/products/${productId}`)
+  const response = await api.get(`/products/${productId}/history`)
+  const data = unwrapData(response)
+
+  return {
+    ...data.product,
+    custodyHistory: data.history,
+    currentCustodian: data.currentCustodian,
+    metadata: data.metadata,
+  }
 }
 
 export const registerProduct = async (productData) => {
@@ -73,16 +84,18 @@ export const uploadToIPFS = async (metadata, files) => {
     },
   })
 
-  return response.data?.ipfsHash
+  return unwrapData(response).ipfsHash
 }
 
 export const getFromIPFS = async (hash) => {
-  return api.get(`/ipfs/${hash}`)
+  const response = await api.get(`/ipfs/${hash}`)
+  return unwrapData(response).metadata
 }
 
 // Stats API
 export const getStats = async () => {
-  return api.get('/stats')
+  const response = await api.get('/stats')
+  return unwrapData(response)
 }
 
 export default api

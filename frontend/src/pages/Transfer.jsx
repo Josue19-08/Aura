@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAccount } from 'wagmi'
 import WalletConnect from '@components/WalletConnect'
@@ -7,6 +7,8 @@ import useContract from '@hooks/useContract'
 import { getProduct } from '@utils/api'
 
 export default function Transfer() {
+  const newCustodianId = useId()
+  const locationId = useId()
   const { address, isConnected } = useAccount()
   const { transferCustody, isLoading: isTransferring } = useContract()
 
@@ -126,7 +128,7 @@ export default function Transfer() {
             </div>
           )}
 
-          <button onClick={handleReset} className="btn-outline">
+          <button onClick={handleReset} type="button" className="btn-outline">
             Transfer Another Product
           </button>
         </motion.div>
@@ -149,7 +151,12 @@ export default function Transfer() {
         </p>
 
         {error && (
-          <div className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6">
+          <div
+            id="transfer-error"
+            role="alert"
+            aria-live="polite"
+            className="bg-caution/20 border border-caution text-caution rounded-lg p-4 mb-6"
+          >
             {error}
           </div>
         )}
@@ -166,10 +173,12 @@ export default function Transfer() {
                 onChange={(e) => setProductId(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLoadProduct()}
                 className="input-field"
+                aria-label="Product ID"
               />
               <button
                 onClick={handleLoadProduct}
                 disabled={isLoading}
+                type="button"
                 className="btn-primary w-full disabled:opacity-50"
               >
                 {isLoading ? 'Loading...' : 'Load Product'}
@@ -211,28 +220,33 @@ export default function Transfer() {
               <h3 className="text-h3 font-sans mb-6">Transfer Details</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="label">New Custodian Address</label>
+                  <label htmlFor={newCustodianId} className="label">New Custodian Address</label>
                   <input
+                    id={newCustodianId}
                     type="text"
                     placeholder="0x..."
                     value={newCustodian}
                     onChange={(e) => setNewCustodian(e.target.value)}
                     className="input-field font-mono"
+                    aria-describedby={error ? 'transfer-error' : undefined}
                   />
                 </div>
                 <div>
-                  <label className="label">Location</label>
+                  <label htmlFor={locationId} className="label">Location</label>
                   <input
+                    id={locationId}
                     type="text"
                     placeholder="Warehouse - Medellín"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="input-field"
+                    aria-describedby={error ? 'transfer-error' : undefined}
                   />
                 </div>
                 <button
                   onClick={handleTransfer}
                   disabled={isTransferring}
+                  type="button"
                   className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isTransferring ? 'Transferring...' : 'Confirm Transfer'}

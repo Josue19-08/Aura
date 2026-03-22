@@ -134,10 +134,12 @@ export default function Verify() {
                   onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
                   className="input-field"
                   disabled={isLoading}
+                  aria-label="Product ID"
                 />
                 <button
                   onClick={() => handleVerify()}
                   disabled={isLoading || !productId}
+                  type="button"
                   className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Verifying...' : 'Verify Product'}
@@ -151,6 +153,7 @@ export default function Verify() {
               {!isScanning ? (
                 <button
                   onClick={startScanning}
+                  type="button"
                   className="btn-outline w-full"
                 >
                   Start Camera
@@ -163,6 +166,7 @@ export default function Verify() {
                   />
                   <button
                     onClick={stopScanning}
+                    type="button"
                     className="btn-secondary w-full"
                   >
                     Stop Scanning
@@ -178,6 +182,8 @@ export default function Verify() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            role="alert"
+            aria-live="polite"
             className="bg-caution/20 border border-caution text-caution rounded-lg p-6 mb-8"
           >
             <div className="flex items-center gap-3">
@@ -195,6 +201,7 @@ export default function Verify() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            aria-live="polite"
             className="text-center py-12"
           >
             <div className="inline-block w-16 h-16 border-4 border-signal/30 border-t-signal rounded-full animate-spin mb-4" />
@@ -207,7 +214,7 @@ export default function Verify() {
           <div>
             <VerificationResult result={result} />
             <div className="text-center mt-8">
-              <button onClick={handleReset} className="btn-outline">
+              <button onClick={handleReset} type="button" className="btn-outline">
                 Verify Another Product
               </button>
             </div>

@@ -25,5 +25,56 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return
+          }
+
+          if (id.includes('framer-motion')) {
+            return 'motion'
+          }
+
+          if (id.includes('react-router')) {
+            return 'router'
+          }
+
+          if (id.includes('qr-scanner') || id.includes('qrcode')) {
+            return 'qr'
+          }
+
+          if (id.includes('@rainbow-me')) {
+            return 'rainbowkit'
+          }
+
+          if (id.includes('wagmi')) {
+            return 'wagmi'
+          }
+
+          if (id.includes('viem')) {
+            return 'viem'
+          }
+
+          if (id.includes('@walletconnect') || id.includes('@reown')) {
+            return 'walletconnect'
+          }
+
+          if (id.includes('@coinbase')) {
+            return 'coinbase'
+          }
+
+          if (id.includes('metamask')) {
+            return 'metamask'
+          }
+
+          if (id.includes('@tanstack')) {
+            return 'query'
+          }
+
+          return 'vendor'
+        },
+      },
+    },
   },
 })

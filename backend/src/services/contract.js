@@ -20,6 +20,8 @@ const PRODUCT_REGISTRY_ABI = [
   'event ProductVerified(uint256 indexed productId, address verifier, uint256 newCount, uint256 timestamp)'
 ];
 
+const FRAUD_THRESHOLD = 100;
+
 class ContractService {
   constructor() {
     this.provider = null;
@@ -169,14 +171,19 @@ class ContractService {
       logger.info(`Verifying product ${productId}`);
 
       const tx = await contractWithSigner.verifyProduct(productId);
-      const receipt = await tx.wait();
+      await tx.wait();
 
-      // Get updated product data
-      const product = await this.getProduct(productId);
+      const { product, history, currentCustodian } = await this.getProductWithHistory(productId);
+      const verificationCount = product.verificationCount;
+      const status = verificationCount > FRAUD_THRESHOLD ? 'suspicious' : 'authentic';
 
       return {
         transactionHash: tx.hash,
-        product
+        product,
+        custodyHistory: history,
+        currentCustodian,
+        verificationCount,
+        status
       };
     } catch (error) {
       logger.error('Failed to verify product', error);

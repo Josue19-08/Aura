@@ -84,6 +84,7 @@ function NavLink({ to, active, children }) {
   return (
     <Link
       to={to}
+      aria-current={active ? 'page' : undefined}
       className={`font-medium transition-colors relative group ${
         active
           ? 'text-signal'
