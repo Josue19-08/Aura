@@ -1,6 +1,6 @@
 import { AppError } from './errorHandler.js';
 
-// Validate Ethereum address
+// Validate Ethereum address (0x + 40 hex chars)
 const isValidAddress = (address) => {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 };
@@ -9,25 +9,38 @@ const isValidAddress = (address) => {
 const validateProductRegistration = (req, res, next) => {
   const { lotId, productName, origin, metadata } = req.body;
 
-  // Check required fields
   if (!lotId || typeof lotId !== 'string' || lotId.trim().length === 0) {
     return next(new AppError('lotId is required and must be a non-empty string', 400, 'INVALID_LOT_ID'));
+  }
+
+  if (lotId.trim().length < 3 || lotId.trim().length > 50) {
+    return next(new AppError('lotId must be between 3 and 50 characters', 400, 'INVALID_LOT_ID'));
+  }
+
+  if (!/^[A-Za-z0-9\-_]+$/.test(lotId.trim())) {
+    return next(new AppError('lotId must contain only letters, numbers, hyphens, or underscores', 400, 'INVALID_LOT_ID'));
   }
 
   if (!productName || typeof productName !== 'string' || productName.trim().length === 0) {
     return next(new AppError('productName is required and must be a non-empty string', 400, 'INVALID_PRODUCT_NAME'));
   }
 
+  if (productName.trim().length < 3 || productName.trim().length > 100) {
+    return next(new AppError('productName must be between 3 and 100 characters', 400, 'INVALID_PRODUCT_NAME'));
+  }
+
   if (!origin || typeof origin !== 'string' || origin.trim().length === 0) {
     return next(new AppError('origin is required and must be a non-empty string', 400, 'INVALID_ORIGIN'));
   }
 
-  // Metadata is optional, but if provided must be an object
-  if (metadata && typeof metadata !== 'object') {
-    return next(new AppError('metadata must be an object', 400, 'INVALID_METADATA'));
+  if (origin.trim().length > 200) {
+    return next(new AppError('origin must not exceed 200 characters', 400, 'INVALID_ORIGIN'));
   }
 
-  // Trim strings
+  if (metadata !== undefined && (typeof metadata !== 'object' || Array.isArray(metadata) || metadata === null)) {
+    return next(new AppError('metadata must be a plain object', 400, 'INVALID_METADATA'));
+  }
+
   req.body.lotId = lotId.trim();
   req.body.productName = productName.trim();
   req.body.origin = origin.trim();
@@ -39,22 +52,22 @@ const validateProductRegistration = (req, res, next) => {
 const validateCustodyTransfer = (req, res, next) => {
   const { productId, newCustodian, locationNote } = req.body;
 
-  // Check product ID
   if (!productId || !Number.isInteger(Number(productId)) || Number(productId) <= 0) {
     return next(new AppError('productId must be a positive integer', 400, 'INVALID_PRODUCT_ID'));
   }
 
-  // Check new custodian address
   if (!newCustodian || !isValidAddress(newCustodian)) {
-    return next(new AppError('newCustodian must be a valid Ethereum address', 400, 'INVALID_ADDRESS'));
+    return next(new AppError('newCustodian must be a valid Ethereum address (0x + 40 hex chars)', 400, 'INVALID_ADDRESS'));
   }
 
-  // Check location note
   if (!locationNote || typeof locationNote !== 'string' || locationNote.trim().length === 0) {
     return next(new AppError('locationNote is required and must be a non-empty string', 400, 'INVALID_LOCATION_NOTE'));
   }
 
-  // Convert to proper types
+  if (locationNote.trim().length > 200) {
+    return next(new AppError('locationNote must not exceed 200 characters', 400, 'INVALID_LOCATION_NOTE'));
+  }
+
   req.body.productId = Number(productId);
   req.body.newCustodian = newCustodian.trim();
   req.body.locationNote = locationNote.trim();
@@ -62,7 +75,7 @@ const validateCustodyTransfer = (req, res, next) => {
   next();
 };
 
-// Validate product ID parameter
+// Validate product ID route parameter
 const validateProductId = (req, res, next) => {
   const { id } = req.params;
 
@@ -75,6 +88,7 @@ const validateProductId = (req, res, next) => {
 };
 
 export {
+  isValidAddress,
   validateProductRegistration,
   validateCustodyTransfer,
   validateProductId
