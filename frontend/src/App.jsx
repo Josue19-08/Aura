@@ -6,6 +6,8 @@ import Home from '@pages/Home'
 import Verify from '@pages/Verify'
 import Register from '@pages/Register'
 import Transfer from '@pages/Transfer'
+import Dashboard from '@pages/Dashboard'
+import BatchRegister from '@pages/BatchRegister'
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/verify/:productId" element={<Verify />} />
             <Route path="/register" element={<Register />} />
             <Route path="/transfer" element={<Transfer />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/batch-register" element={<BatchRegister />} />
           </Routes>
         </motion.main>
         <Footer />

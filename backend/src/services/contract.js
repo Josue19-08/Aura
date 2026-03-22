@@ -12,6 +12,8 @@ const PRODUCT_REGISTRY_ABI = [
   // Write functions
   'function registerProduct(string lotId, string productName, string origin, string ipfsHash) returns (uint256)',
   'function transferCustody(uint256 productId, address newCustodian, string locationNote)',
+  // Stats
+  'function getTotalProducts() view returns (uint256)',
   // Events
   'event ProductRegistered(uint256 indexed productId, string lotId, address indexed manufacturer, uint256 timestamp)',
   'event CustodyTransferred(uint256 indexed productId, address indexed fromCustodian, address indexed toCustodian, string location, uint256 timestamp)',

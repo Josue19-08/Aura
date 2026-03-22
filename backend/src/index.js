@@ -8,6 +8,7 @@ import { logger } from './utils/logger.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { healthRouter } from './routes/health.js';
 import { productsRouter } from './routes/products.js';
+import { statsRouter } from './routes/stats.js';
 import { contractService } from './services/contract.js';
 import { swaggerSpec } from './config/swagger.js';
 
@@ -72,6 +73,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/health', healthRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/stats', statsRouter);
 
 // API documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
