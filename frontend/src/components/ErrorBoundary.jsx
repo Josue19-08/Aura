@@ -1,13 +1,13 @@
 import { Component } from 'react'
 
-export default class ErrorBoundary extends Component {
+class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, error: null }
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
   }
 
   componentDidCatch(error, errorInfo) {
@@ -39,3 +39,6 @@ export default class ErrorBoundary extends Component {
     return this.props.children
   }
 }
+
+export { ErrorBoundary }
+export default ErrorBoundary

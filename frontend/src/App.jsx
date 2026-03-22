@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { SkipLink } from '@components/AccessibleComponents'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import KeyboardHelpDialog from '@components/KeyboardHelpDialog'
@@ -38,15 +39,17 @@ function App() {
 
   useEffect(() => {
     const handleKeyboardHelp = (event) => {
-      if (event.key === '?' && !event.metaKey && !event.ctrlKey && !event.altKey) {
-        const tagName = document.activeElement?.tagName
-        if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
-          return
-        }
-
-        event.preventDefault()
-        setIsKeyboardHelpOpen(true)
+      if (event.key !== '?' || event.metaKey || event.ctrlKey || event.altKey) {
+        return
       }
+
+      const tagName = document.activeElement?.tagName
+      if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+        return
+      }
+
+      event.preventDefault()
+      setIsKeyboardHelpOpen(true)
     }
 
     window.addEventListener('keydown', handleKeyboardHelp)
@@ -55,10 +58,11 @@ function App() {
 
   return (
     <Router>
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <KeyboardHelpDialog open={isKeyboardHelpOpen} onClose={() => setIsKeyboardHelpOpen(false)} />
+      <SkipLink />
+      <KeyboardHelpDialog
+        open={isKeyboardHelpOpen}
+        onClose={() => setIsKeyboardHelpOpen(false)}
+      />
       <div className="min-h-screen bg-void text-white font-sans flex flex-col">
         <Header onOpenKeyboardHelp={() => setIsKeyboardHelpOpen(true)} />
         <motion.main

@@ -1,4 +1,4 @@
-const ERROR_MESSAGES = {
+export const ERROR_MESSAGES = {
   WALLET_NOT_CONNECTED: {
     title: 'Wallet required',
     message: 'Connect a wallet before continuing.',
@@ -23,6 +23,11 @@ const ERROR_MESSAGES = {
     title: 'Product not found',
     message: 'This product ID is not registered in Aura.',
     action: 'Verify the ID or scan the QR code again.',
+  },
+  PRODUCT_INACTIVE: {
+    title: 'Product deactivated',
+    message: 'This product has been marked as inactive.',
+    action: 'Contact the manufacturer for more information.',
   },
   NOT_CUSTODIAN: {
     title: 'Transfer not allowed',
@@ -53,19 +58,20 @@ const ERROR_MESSAGES = {
 
 const ERROR_PATTERNS = [
   { match: /wallet not connected/i, code: 'WALLET_NOT_CONNECTED' },
-  { match: /user rejected|rejected the request|user denied/i, code: 'USER_REJECTED' },
+  { match: /user rejected|rejected the request|user denied|user rejected transaction/i, code: 'USER_REJECTED' },
   { match: /insufficient funds/i, code: 'INSUFFICIENT_FUNDS' },
-  { match: /network error|network unavailable|fetch failed|failed to fetch/i, code: 'NETWORK_ERROR' },
-  { match: /product not found|not registered/i, code: 'PRODUCT_NOT_FOUND' },
-  { match: /not current custodian|not the current custodian/i, code: 'NOT_CUSTODIAN' },
+  { match: /network error|network unavailable|fetch failed|failed to fetch|network request failed/i, code: 'NETWORK_ERROR' },
+  { match: /product not found|not registered|productnotfound/i, code: 'PRODUCT_NOT_FOUND' },
+  { match: /productinactive|product inactive|deactivated/i, code: 'PRODUCT_INACTIVE' },
+  { match: /not current custodian|not the current custodian|notcurrentcustodian/i, code: 'NOT_CUSTODIAN' },
   { match: /invalid ethereum address|invalid address/i, code: 'INVALID_ADDRESS' },
   { match: /ipfs|pinata/i, code: 'IPFS_ERROR' },
-  { match: /validation/i, code: 'VALIDATION_ERROR' },
+  { match: /validation|required/i, code: 'VALIDATION_ERROR' },
 ]
 
 export function getErrorDetails(error) {
   const code = error?.code || error?.response?.data?.error?.code
-  const message = error?.message || error?.response?.data?.error?.message || ''
+  const message = error?.message || error?.response?.data?.error?.message || error?.toString?.() || ''
 
   if (code && ERROR_MESSAGES[code]) {
     return ERROR_MESSAGES[code]
@@ -77,4 +83,8 @@ export function getErrorDetails(error) {
   }
 
   return ERROR_MESSAGES.DEFAULT
+}
+
+export function getErrorMessage(error) {
+  return getErrorDetails(error)
 }
