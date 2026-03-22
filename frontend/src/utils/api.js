@@ -73,7 +73,7 @@ export const uploadToIPFS = async (metadata, files) => {
     },
   })
 
-  return response.ipfsHash
+  return response.data?.ipfsHash
 }
 
 export const getFromIPFS = async (hash) => {

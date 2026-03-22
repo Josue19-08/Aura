@@ -26,6 +26,7 @@ export default function Register() {
   const [ipfsHash, setIpfsHash] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [productId, setProductId] = useState(null)
+  const [txHash, setTxHash] = useState(null)
   const [qrCodeUrl, setQrCodeUrl] = useState(null)
   const [error, setError] = useState(null)
 
@@ -86,6 +87,7 @@ export default function Register() {
       )
 
       setProductId(result.productId)
+      setTxHash(result.hash)
       await generateQRCode(result.productId)
     } catch (err) {
       console.error('Registration error:', err)
@@ -128,6 +130,7 @@ export default function Register() {
     setFiles({ certificates: null, images: null })
     setIpfsHash(null)
     setProductId(null)
+    setTxHash(null)
     setQrCodeUrl(null)
     setError(null)
   }
@@ -164,9 +167,24 @@ export default function Register() {
             <span className="text-4xl">✓</span>
           </div>
           <h1 className="text-h2 font-display mb-4">Product Registered!</h1>
-          <p className="text-fog mb-8">
-            Product ID: <span className="font-mono text-signal">#{productId}</span>
-          </p>
+          <div className="space-y-2 mb-8">
+            <p className="text-fog">
+              Product ID: <span className="font-mono text-signal">#{productId}</span>
+            </p>
+            {txHash && (
+              <p className="text-fog text-sm">
+                Tx:{' '}
+                <a
+                  href={`https://testnet.snowtrace.io/tx/${txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-signal hover:underline break-all"
+                >
+                  {txHash.slice(0, 10)}...{txHash.slice(-8)}
+                </a>
+              </p>
+            )}
+          </div>
 
           <div className="card mb-8">
             <h3 className="text-h3 font-sans mb-6">QR Code</h3>
