@@ -75,7 +75,7 @@ export default function Register() {
       notifySuccess('Metadata uploaded to IPFS.')
     } catch (err) {
       console.error('Upload error:', err)
-      setError(err.message || 'Failed to upload metadata')
+      setError(err)
       notifyError(err)
     } finally {
       setIsUploading(false)
@@ -104,7 +104,7 @@ export default function Register() {
       notifySuccess('Product registered successfully.')
     } catch (err) {
       console.error('Registration error:', err)
-      setError(err.message || 'Failed to register product')
+      setError(err)
       notifyError(err)
     }
   }

@@ -45,7 +45,7 @@ export default function useContract() {
       return { hash, productId, receipt }
     } catch (err) {
       console.error('Registration error:', err)
-      setError(err.message || 'Failed to register product')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)
@@ -76,7 +76,7 @@ export default function useContract() {
       return { hash, receipt }
     } catch (err) {
       console.error('Transfer error:', err)
-      setError(err.message || 'Failed to transfer custody')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)
@@ -102,7 +102,7 @@ export default function useContract() {
       return result
     } catch (err) {
       console.error('Verification error:', err)
-      setError(err.message || 'Failed to verify product')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)

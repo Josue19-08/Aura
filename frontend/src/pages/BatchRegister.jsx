@@ -64,7 +64,7 @@ export default function BatchRegister() {
       setResults(batchResults)
       notifySuccess(`Batch registration finished with ${batchResults.successCount} successful products.`)
     } catch (err) {
-      setError(err.message || 'Batch registration failed')
+      setError(err)
       notifyError(err)
     } finally {
       setIsRegistering(false)

@@ -85,7 +85,7 @@ export default function Dashboard() {
       const response = await getStats()
       setStats(response)
     } catch (err) {
-      setError(err.message || 'Failed to load statistics')
+      setError(err)
     } finally {
       setLoading(false)
     }

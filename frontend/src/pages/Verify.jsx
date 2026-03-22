@@ -97,7 +97,7 @@ export default function Verify() {
       setResult(data)
     } catch (err) {
       console.error('Verification error:', err)
-      setError(err.message || 'Failed to verify product')
+      setError(err)
       notifyError(err)
     } finally {
       setIsLoading(false)

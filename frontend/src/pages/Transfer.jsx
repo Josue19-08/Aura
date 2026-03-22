@@ -44,7 +44,7 @@ export default function Transfer() {
       setProduct(data)
     } catch (err) {
       console.error('Load error:', err)
-      setError(err.message || 'Failed to load product')
+      setError(err)
       notifyError(err)
     } finally {
       setIsLoading(false)
@@ -70,7 +70,7 @@ export default function Transfer() {
       notifySuccess('Custody transferred successfully.')
     } catch (err) {
       console.error('Transfer error:', err)
-      setError(err.message || 'Failed to transfer custody')
+      setError(err)
       notifyError(err)
     }
   }
