@@ -50,3 +50,5 @@ frontend/playwright-report/
 # Temporary files
 *.tmp
 .temp/
+.vercel
+.env*.local
