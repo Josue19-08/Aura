@@ -5,8 +5,13 @@ yarn.lock
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.*.local
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
 
 # Hardhat
 cache/
@@ -37,6 +42,10 @@ yarn-error.log*
 # Coverage
 coverage/
 coverage.json
+playwright-report/
+test-results/
+frontend/test-results/
+frontend/playwright-report/
 
 # Temporary files
 *.tmp

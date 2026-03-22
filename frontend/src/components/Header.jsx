@@ -1,8 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import WalletConnect from './WalletConnect'
 
-export default function Header() {
+export default function Header({ onOpenKeyboardHelp }) {
   const location = useLocation()
 
   const isActive = (path) => {
@@ -16,7 +15,7 @@ export default function Header() {
       transition={{ duration: 0.5 }}
       className="sticky top-0 z-50 bg-void/60 backdrop-blur-md"
     >
-      <nav className="px-6 md:px-12 lg:px-20 py-4">
+      <nav className="px-4 md:px-12 lg:px-20 py-4" aria-label="Primary">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           {/* Logo - Far Left */}
           <Link to="/" className="flex items-center gap-3 group">
@@ -50,30 +49,42 @@ export default function Header() {
             <NavLink to="/dashboard" active={isActive('/dashboard')}>
               Analytics
             </NavLink>
-            <WalletConnect />
+            <button type="button" onClick={onOpenKeyboardHelp} className="text-fog hover:text-white transition-colors">
+              Shortcuts
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex justify-around mt-4 pt-4 border-t border-fog/10">
-          <NavLink to="/" active={isActive('/')}>
-            Home
-          </NavLink>
-          <NavLink to="/verify" active={isActive('/verify')}>
-            Verify
-          </NavLink>
-          <NavLink to="/register" active={isActive('/register')}>
-            Register
-          </NavLink>
-          <NavLink to="/transfer" active={isActive('/transfer')}>
-            Transfer
-          </NavLink>
-          <NavLink to="/batch-register" active={isActive('/batch-register')}>
-            Batch
-          </NavLink>
-          <NavLink to="/dashboard" active={isActive('/dashboard')}>
-            Analytics
-          </NavLink>
+        <div className="md:hidden mt-4 pt-4 border-t border-fog/10 space-y-4">
+          <div className="grid grid-cols-3 gap-2">
+            <NavLink to="/" active={isActive('/')}>
+              Home
+            </NavLink>
+            <NavLink to="/verify" active={isActive('/verify')}>
+              Verify
+            </NavLink>
+            <NavLink to="/register" active={isActive('/register')}>
+              Register
+            </NavLink>
+            <NavLink to="/transfer" active={isActive('/transfer')}>
+              Transfer
+            </NavLink>
+            <NavLink to="/batch-register" active={isActive('/batch-register')}>
+              Batch
+            </NavLink>
+            <NavLink to="/dashboard" active={isActive('/dashboard')}>
+              Analytics
+            </NavLink>
+          </div>
+          <div className="flex flex-col gap-3">
+            <button type="button" onClick={onOpenKeyboardHelp} className="btn-outline w-full">
+              Keyboard Shortcuts
+            </button>
+            <Link to="/register" className="btn-primary w-full text-center">
+              Open Wallet Tools
+            </Link>
+          </div>
         </div>
       </nav>
     </motion.header>
@@ -84,7 +95,8 @@ function NavLink({ to, active, children }) {
   return (
     <Link
       to={to}
-      className={`font-medium transition-colors relative group ${
+      aria-current={active ? 'page' : undefined}
+      className={`font-medium transition-colors relative group rounded-lg px-3 py-3 text-center min-h-[44px] ${
         active
           ? 'text-signal'
           : 'text-fog hover:text-white'

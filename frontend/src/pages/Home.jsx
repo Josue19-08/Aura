@@ -1,11 +1,12 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 export default function Home() {
+  const reduceMotion = useReducedMotion()
+
   return (
     <div>
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center px-6 md:px-12 lg:px-20">
+      <section className="relative min-h-screen flex items-center px-6 md:px-12 lg:px-20">
         <div className="max-w-[1400px] mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -13,12 +14,11 @@ export default function Home() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-4xl space-y-8"
           >
-            {/* Sparkle Icon + Main Headline */}
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  animate={reduceMotion ? undefined : { rotate: [0, 360] }}
+                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                   className="text-signal text-5xl md:text-6xl flex-shrink-0"
                 >
                   ✦
@@ -33,12 +33,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Description */}
             <p className="text-lg md:text-xl text-fog/90 leading-relaxed max-w-2xl">
               Giving pharmaceutical companies a competitive edge through blockchain-powered authenticity verification
             </p>
 
-            {/* CTA Button */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -46,7 +44,7 @@ export default function Home() {
             >
               <Link to="/verify">
                 <motion.div
-                  whileHover={{ x: 5 }}
+                  whileHover={reduceMotion ? undefined : { x: 5 }}
                   className="inline-flex items-center gap-4 group"
                 >
                   <div className="px-8 py-4 bg-signal/10 hover:bg-signal/20 transition-colors duration-300 backdrop-blur-sm">
@@ -55,7 +53,7 @@ export default function Home() {
                     </span>
                   </div>
                   <motion.div
-                    animate={{ x: [0, 5, 0] }}
+                    animate={reduceMotion ? { x: 0 } : { x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                     className="text-signal text-3xl"
                   >
@@ -68,7 +66,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar */}
       <section className="relative py-12">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -80,7 +77,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="relative py-32 px-6 md:px-12 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <motion.div
@@ -140,7 +136,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative py-32 px-6 md:px-12 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <motion.div
@@ -150,7 +145,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="relative p-12 md:p-20 backdrop-blur-xl"
             style={{
-              background: 'rgba(0, 229, 204, 0.05)'
+              background: 'rgba(0, 229, 204, 0.05)',
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-signal/10 to-transparent" />
@@ -164,7 +159,7 @@ export default function Home() {
               </p>
               <Link to="/verify">
                 <motion.div
-                  whileHover={{ x: 5 }}
+                  whileHover={reduceMotion ? undefined : { x: 5 }}
                   className="inline-flex items-center gap-4 group"
                 >
                   <div className="px-8 py-4 bg-signal/10 hover:bg-signal/20 transition-colors duration-300 backdrop-blur-sm">
@@ -173,7 +168,7 @@ export default function Home() {
                     </span>
                   </div>
                   <motion.div
-                    animate={{ x: [0, 5, 0] }}
+                    animate={reduceMotion ? { x: 0 } : { x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                     className="text-signal text-3xl"
                   >
@@ -213,7 +208,7 @@ function FeatureCard({ icon, title, description, delay }) {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ delay, duration: 0.6 }}
       whileHover={{ y: -4 }}
       className="relative p-8 hover:bg-white/[0.02] transition-all duration-300 group backdrop-blur-sm"

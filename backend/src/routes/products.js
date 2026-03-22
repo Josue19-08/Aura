@@ -10,6 +10,19 @@ import { logger } from '../utils/logger.js';
 
 const router = express.Router();
 
+async function retrieveMetadataIfAvailable(ipfsHash, productId) {
+  if (!ipfsHash) {
+    return null;
+  }
+
+  try {
+    return await ipfsService.retrieveMetadata(ipfsHash);
+  } catch (error) {
+    logger.warn(`Failed to fetch IPFS metadata for product ${productId}`, error);
+    return null;
+  }
+}
+
 /**
  * @swagger
  * tags:
@@ -232,12 +245,18 @@ router.post('/:id/verify', validateProductId, async (req, res, next) => {
 
     logger.info(`Verifying product ${id}`);
 
+    // Verification is intentionally modeled as POST because it increments the
+    // on-chain verification counter and emits an auditable event.
     const result = await contractService.verifyProduct(id);
 
     res.status(200).json({
       success: true,
       data: {
+        status: result.status,
         product: result.product,
+        custodyHistory: result.custodyHistory,
+        currentCustodian: result.currentCustodian,
+        verificationCount: result.verificationCount,
         transactionHash: result.transactionHash,
         message: 'Product verified successfully'
       }
@@ -297,14 +316,7 @@ router.get('/:id', validateProductId, async (req, res, next) => {
 
     const product = await contractService.getProduct(id);
 
-    let metadata = null;
-    if (product.ipfsHash && product.ipfsHash !== '') {
-      try {
-        metadata = await ipfsService.retrieveMetadata(product.ipfsHash);
-      } catch (error) {
-        logger.warn(`Failed to fetch IPFS metadata for product ${id}`, error);
-      }
-    }
+    const metadata = await retrieveMetadataIfAvailable(product.ipfsHash, id);
 
     res.status(200).json({
       success: true,
@@ -373,14 +385,7 @@ router.get('/:id/history', validateProductId, async (req, res, next) => {
 
     const data = await contractService.getProductWithHistory(id);
 
-    let metadata = null;
-    if (data.product.ipfsHash && data.product.ipfsHash !== '') {
-      try {
-        metadata = await ipfsService.retrieveMetadata(data.product.ipfsHash);
-      } catch (error) {
-        logger.warn(`Failed to fetch IPFS metadata for product ${id}`, error);
-      }
-    }
+    const metadata = await retrieveMetadataIfAvailable(data.product.ipfsHash, id);
 
     res.status(200).json({
       success: true,

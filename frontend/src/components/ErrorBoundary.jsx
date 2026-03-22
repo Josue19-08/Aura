@@ -1,33 +1,35 @@
 import { Component } from 'react'
 
-export class ErrorBoundary extends Component {
-  state = { hasError: false, error: null }
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error }
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
+    console.error('Unhandled React error', error, errorInfo)
+  }
+
+  handleReload = () => {
+    window.location.reload()
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center px-6 bg-void">
-          <div className="max-w-md p-8 bg-slate/40 backdrop-blur-xl text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Oops! Something Went Wrong
-            </h2>
-            <p className="text-fog/80 mb-6">
-              We encountered an unexpected error. Please refresh the page.
+        <div className="min-h-screen bg-void text-white flex items-center justify-center px-6">
+          <div className="card max-w-lg text-center">
+            <div className="text-5xl mb-4">!</div>
+            <h1 className="text-h2 font-display mb-3">Aura hit an unexpected error</h1>
+            <p className="text-fog mb-6">
+              Refresh the page to recover. If the problem persists, retry the last action after reconnecting your wallet or API.
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-signal/10 hover:bg-signal/20 transition-colors duration-300"
-            >
-              <span className="text-signal font-medium">Refresh Page</span>
+            <button type="button" onClick={this.handleReload} className="btn-primary">
+              Reload application
             </button>
           </div>
         </div>
@@ -37,3 +39,6 @@ export class ErrorBoundary extends Component {
     return this.props.children
   }
 }
+
+export { ErrorBoundary }
+export default ErrorBoundary

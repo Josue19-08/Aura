@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { getStats } from '@utils/api'
+import { ErrorMessage } from '@components/FeedbackMessage'
+import { DashboardSkeleton } from '@components/LoadingStates'
 
 function StatCard({ title, value, icon, highlight }) {
   return (
@@ -81,21 +83,16 @@ export default function Dashboard() {
     setError(null)
     try {
       const response = await getStats()
-      setStats(response.data)
+      setStats(response)
     } catch (err) {
-      setError(err.message || 'Failed to load statistics')
+      setError(err)
     } finally {
       setLoading(false)
     }
   }
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-6 py-20 text-center">
-        <div className="text-signal text-4xl mb-4 animate-pulse">◌</div>
-        <p className="text-fog">Loading analytics...</p>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   if (error) {
@@ -106,11 +103,8 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-lg mx-auto text-center"
         >
-          <div className="bg-caution/20 border border-caution/40 rounded-lg p-6 mb-6">
-            <p className="text-caution font-medium mb-2">Failed to load statistics</p>
-            <p className="text-fog text-sm">{error}</p>
-          </div>
-          <button onClick={fetchStats} className="btn-outline">
+          <ErrorMessage error={error} />
+          <button onClick={fetchStats} type="button" className="btn-outline mt-6">
             Retry
           </button>
         </motion.div>

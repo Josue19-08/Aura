@@ -1,108 +1,90 @@
 export const ERROR_MESSAGES = {
-  // Wallet Errors
-  'user rejected transaction': {
-    title: 'Transaction Rejected',
-    message: 'You cancelled the transaction. No changes were made.',
-    action: 'Try again when ready'
+  WALLET_NOT_CONNECTED: {
+    title: 'Wallet required',
+    message: 'Connect a wallet before continuing.',
+    action: 'Open the wallet modal and try again.',
   },
-  'insufficient funds': {
-    title: 'Insufficient Funds',
-    message: "You don't have enough AVAX to complete this transaction.",
-    action: 'Add AVAX to your wallet from the faucet'
+  USER_REJECTED: {
+    title: 'Transaction rejected',
+    message: 'You cancelled the wallet confirmation.',
+    action: 'Approve the transaction when you are ready.',
   },
-  'network error': {
-    title: 'Network Error',
-    message: 'Unable to connect to Avalanche network.',
-    action: 'Check your internet connection and try again'
+  INSUFFICIENT_FUNDS: {
+    title: 'Insufficient funds',
+    message: 'Your wallet does not have enough AVAX to complete this action.',
+    action: 'Fund the wallet and try again.',
   },
-  'user denied': {
-    title: 'Permission Denied',
-    message: 'You denied the wallet connection request.',
-    action: 'Connect your wallet to continue'
+  NETWORK_ERROR: {
+    title: 'Network unavailable',
+    message: 'Aura could not reach the blockchain or API.',
+    action: 'Check your connection and retry in a moment.',
   },
-
-  // Contract Errors
-  'NotCurrentCustodian': {
-    title: 'Unauthorized Transfer',
-    message: 'Only the current custodian can transfer this product.',
-    action: 'Verify you are using the correct wallet'
+  PRODUCT_NOT_FOUND: {
+    title: 'Product not found',
+    message: 'This product ID is not registered in Aura.',
+    action: 'Verify the ID or scan the QR code again.',
   },
-  'ProductNotFound': {
-    title: 'Product Not Found',
-    message: "This product ID doesn't exist in our system.",
-    action: 'Double-check the product ID and try again'
-  },
-  'ProductInactive': {
-    title: 'Product Deactivated',
+  PRODUCT_INACTIVE: {
+    title: 'Product deactivated',
     message: 'This product has been marked as inactive.',
-    action: 'Contact the manufacturer for more information'
+    action: 'Contact the manufacturer for more information.',
   },
-  'AlreadyRegistered': {
-    title: 'Already Registered',
-    message: 'This product has already been registered.',
-    action: 'Use a unique product ID'
+  NOT_CUSTODIAN: {
+    title: 'Transfer not allowed',
+    message: 'Only the current custodian can transfer this product.',
+    action: 'Connect with the current custodian wallet.',
   },
+  INVALID_ADDRESS: {
+    title: 'Invalid address',
+    message: 'The new custodian address is not valid.',
+    action: 'Paste a valid EVM wallet address.',
+  },
+  IPFS_ERROR: {
+    title: 'Metadata storage failed',
+    message: 'Aura could not upload the metadata to IPFS.',
+    action: 'Retry the upload in a few moments.',
+  },
+  VALIDATION_ERROR: {
+    title: 'Invalid data',
+    message: 'Some fields are missing or contain invalid values.',
+    action: 'Review the form and correct the highlighted data.',
+  },
+  DEFAULT: {
+    title: 'Something went wrong',
+    message: 'Aura could not complete the requested action.',
+    action: 'Retry the action or refresh the page.',
+  },
+}
 
-  // Validation Errors
-  'VALIDATION_ERROR': {
-    title: 'Invalid Input',
-    message: 'Some fields contain invalid data.',
-    action: 'Please review and correct the highlighted fields'
-  },
-  'required': {
-    title: 'Required Field',
-    message: 'This field is required.',
-    action: 'Please fill in all required fields'
-  },
+const ERROR_PATTERNS = [
+  { match: /wallet not connected/i, code: 'WALLET_NOT_CONNECTED' },
+  { match: /user rejected|rejected the request|user denied|user rejected transaction/i, code: 'USER_REJECTED' },
+  { match: /insufficient funds/i, code: 'INSUFFICIENT_FUNDS' },
+  { match: /network error|network unavailable|fetch failed|failed to fetch|network request failed/i, code: 'NETWORK_ERROR' },
+  { match: /product not found|not registered|productnotfound/i, code: 'PRODUCT_NOT_FOUND' },
+  { match: /productinactive|product inactive|deactivated/i, code: 'PRODUCT_INACTIVE' },
+  { match: /not current custodian|not the current custodian|notcurrentcustodian/i, code: 'NOT_CUSTODIAN' },
+  { match: /invalid ethereum address|invalid address/i, code: 'INVALID_ADDRESS' },
+  { match: /ipfs|pinata/i, code: 'IPFS_ERROR' },
+  { match: /validation|required/i, code: 'VALIDATION_ERROR' },
+]
 
-  // IPFS Errors
-  'IPFS_ERROR': {
-    title: 'Storage Error',
-    message: 'Unable to upload metadata to decentralized storage.',
-    action: 'Please try again in a few moments'
-  },
-  'Failed to fetch': {
-    title: 'Connection Error',
-    message: 'Unable to connect to the server.',
-    action: 'Check your internet connection'
-  },
+export function getErrorDetails(error) {
+  const code = error?.code || error?.response?.data?.error?.code
+  const message = error?.message || error?.response?.data?.error?.message || error?.toString?.() || ''
 
-  // API Errors
-  'Network request failed': {
-    title: 'Network Error',
-    message: 'Unable to reach the server.',
-    action: 'Please check your connection and try again'
-  },
-  '404': {
-    title: 'Not Found',
-    message: 'The requested resource was not found.',
-    action: 'Verify the information and try again'
-  },
-  '500': {
-    title: 'Server Error',
-    message: 'An error occurred on the server.',
-    action: 'Please try again later'
-  },
-
-  // Default
-  default: {
-    title: 'Something Went Wrong',
-    message: 'An unexpected error occurred.',
-    action: 'Please try again or contact support if the problem persists'
+  if (code && ERROR_MESSAGES[code]) {
+    return ERROR_MESSAGES[code]
   }
+
+  const pattern = ERROR_PATTERNS.find(({ match }) => match.test(message))
+  if (pattern) {
+    return ERROR_MESSAGES[pattern.code]
+  }
+
+  return ERROR_MESSAGES.DEFAULT
 }
 
 export function getErrorMessage(error) {
-  if (!error) return ERROR_MESSAGES.default
-
-  const errorString = error.message || error.toString()
-
-  // Check for known error patterns
-  for (const [key, value] of Object.entries(ERROR_MESSAGES)) {
-    if (errorString.toLowerCase().includes(key.toLowerCase())) {
-      return value
-    }
-  }
-
-  return ERROR_MESSAGES.default
+  return getErrorDetails(error)
 }

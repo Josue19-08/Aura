@@ -34,6 +34,12 @@ export default function BatchUpload({ onProductsParsed }) {
   }
 
   const handleDragOver = (e) => e.preventDefault()
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      fileInputRef.current?.click()
+    }
+  }
 
   const downloadTemplate = () => {
     const blob = new Blob([CSV_TEMPLATE], { type: 'text/csv' })
@@ -52,7 +58,12 @@ export default function BatchUpload({ onProductsParsed }) {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-fog/30 hover:border-signal/50 transition-colors rounded-lg p-10 text-center cursor-pointer"
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label="Upload CSV file"
+        aria-describedby="batch-upload-help"
+        className="border-2 border-dashed border-fog/30 hover:border-signal/50 transition-colors rounded-lg p-6 sm:p-10 text-center cursor-pointer min-h-[180px] flex flex-col items-center justify-center"
       >
         <input
           ref={fileInputRef}
@@ -66,7 +77,7 @@ export default function BatchUpload({ onProductsParsed }) {
           <p className="text-white font-medium">{fileName}</p>
         ) : (
           <>
-            <p className="text-fog mb-1">Drop a CSV file here or click to browse</p>
+            <p id="batch-upload-help" className="text-fog mb-1">Drop a CSV file here or click to browse</p>
             <p className="text-fog/50 text-sm">Only .csv files accepted</p>
           </>
         )}

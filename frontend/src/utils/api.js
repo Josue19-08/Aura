@@ -9,6 +9,12 @@ const api = axios.create({
   },
 })
 
+/**
+ * Normalizes axios responses so callers can consume backend payloads without
+ * repeating `.data` checks in every screen.
+ */
+const unwrapData = (response) => response?.data ?? response
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
@@ -19,24 +25,46 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor
+// Preserve backend error codes so shared UI error messaging can stay specific.
 api.interceptors.response.use(
   (response) => {
     return response.data
   },
   (error) => {
-    const message = error.response?.data?.error || error.message || 'An error occurred'
-    return Promise.reject(new Error(message))
+    const errorPayload = error.response?.data?.error
+    const message = typeof errorPayload === 'string'
+      ? errorPayload
+      : errorPayload?.message || error.message || 'An error occurred'
+    const apiError = new Error(message)
+
+    if (errorPayload?.code) {
+      apiError.code = errorPayload.code
+    }
+
+    if (error.response) {
+      apiError.response = error.response
+    }
+
+    return Promise.reject(apiError)
   }
 )
 
 // Product APIs
 export const verifyProduct = async (productId) => {
-  return api.get(`/products/verify/${productId}`)
+  const response = await api.post(`/products/${productId}/verify`)
+  return unwrapData(response)
 }
 
 export const getProduct = async (productId) => {
-  return api.get(`/products/${productId}`)
+  const response = await api.get(`/products/${productId}/history`)
+  const data = unwrapData(response)
+
+  return {
+    ...data.product,
+    custodyHistory: data.history,
+    currentCustodian: data.currentCustodian,
+    metadata: data.metadata,
+  }
 }
 
 export const registerProduct = async (productData) => {
@@ -73,16 +101,18 @@ export const uploadToIPFS = async (metadata, files) => {
     },
   })
 
-  return response.data?.ipfsHash
+  return unwrapData(response).ipfsHash
 }
 
 export const getFromIPFS = async (hash) => {
-  return api.get(`/ipfs/${hash}`)
+  const response = await api.get(`/ipfs/${hash}`)
+  return unwrapData(response).metadata
 }
 
 // Stats API
 export const getStats = async () => {
-  return api.get('/stats')
+  const response = await api.get('/stats')
+  return unwrapData(response)
 }
 
 export default api

@@ -159,6 +159,7 @@ Comprehensive documentation available in [`/docs`](/docs):
 - **[Product Specs](/docs/product/)** — Features and user flows
 - **[Smart Contracts](/docs/contracts/)** — Contract documentation
 - **[Development](/docs/development/)** — Setup guides and roadmap
+- **[Testing Guide](/docs/development/testing.md)** — CI matrix, Playwright coverage, and manual QA checklist
 
 ---
 
@@ -187,6 +188,16 @@ REPORT_GAS=true npx hardhat test
 
 # Run tests with coverage
 npx hardhat coverage
+
+# Run backend tests
+cd backend && npm test
+
+# Run frontend checks
+cd frontend && npm run lint
+cd frontend && npm run build
+
+# Run cross-browser and mobile E2E
+cd frontend && npm run test:e2e
 ```
 
 ---

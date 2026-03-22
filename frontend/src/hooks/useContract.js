@@ -3,6 +3,11 @@ import { useAccount, useWalletClient, usePublicClient } from 'wagmi'
 import { parseEventLogs } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@utils/constants'
 
+/**
+ * Wraps the contract write/read flows used by wallet-gated routes.
+ * The hook keeps error objects intact so UI layers can map contract and wallet
+ * failures into actionable inline messages and toasts.
+ */
 export default function useContract() {
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
@@ -31,7 +36,8 @@ export default function useContract() {
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
-      // Parse logs to get product ID
+      // Parse the emitted event instead of trusting positional return data so
+      // the UI remains compatible with wallet providers that only expose the receipt.
       const parsedLogs = parseEventLogs({
         abi: CONTRACT_ABI,
         eventName: 'ProductRegistered',
@@ -45,7 +51,7 @@ export default function useContract() {
       return { hash, productId, receipt }
     } catch (err) {
       console.error('Registration error:', err)
-      setError(err.message || 'Failed to register product')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)
@@ -76,7 +82,7 @@ export default function useContract() {
       return { hash, receipt }
     } catch (err) {
       console.error('Transfer error:', err)
-      setError(err.message || 'Failed to transfer custody')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)
@@ -102,7 +108,7 @@ export default function useContract() {
       return result
     } catch (err) {
       console.error('Verification error:', err)
-      setError(err.message || 'Failed to verify product')
+      setError(err)
       throw err
     } finally {
       setIsLoading(false)

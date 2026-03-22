@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest",
-    "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest --watch",
-    "test:coverage": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest --coverage",
+    "test": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest --runInBand",
+    "test:watch": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest --watch --runInBand",
+    "test:coverage": "NODE_ENV=test node --experimental-vm-modules node_modules/.bin/jest --coverage --runInBand",
     "test:ipfs": "node test-ipfs.js"
   },
   "keywords": [

@@ -1,11 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import QrScanner from 'qr-scanner'
 import VerificationResult from '@components/VerificationResult'
 import { verifyProduct } from '@utils/api'
+import { ErrorMessage } from '@components/FeedbackMessage'
+import { LoadingButton, ResultSkeleton } from '@components/LoadingStates'
+import { notifyError } from '@utils/toast'
 
 export default function Verify() {
+  const productIdInputId = useId()
   const { productId: urlProductId } = useParams()
   const navigate = useNavigate()
   const [productId, setProductId] = useState(urlProductId || '')
@@ -59,6 +63,7 @@ export default function Verify() {
       console.error('Scanner error:', err)
       setError('Camera access denied or not available')
       setIsScanning(false)
+      notifyError(err)
     }
   }
 
@@ -92,7 +97,8 @@ export default function Verify() {
       setResult(data)
     } catch (err) {
       console.error('Verification error:', err)
-      setError(err.message || 'Failed to verify product')
+      setError(err)
+      notifyError(err)
     } finally {
       setIsLoading(false)
     }
@@ -126,7 +132,9 @@ export default function Verify() {
             <div className="card">
               <h3 className="text-h3 font-sans mb-4">Enter Product ID</h3>
               <div className="space-y-4">
+                <label htmlFor={productIdInputId} className="label">Product ID</label>
                 <input
+                  id={productIdInputId}
                   type="text"
                   placeholder="Product ID"
                   value={productId}
@@ -134,14 +142,19 @@ export default function Verify() {
                   onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
                   className="input-field"
                   disabled={isLoading}
+                  inputMode="numeric"
+                  enterKeyHint="search"
                 />
-                <button
+                <LoadingButton
                   onClick={() => handleVerify()}
-                  disabled={isLoading || !productId}
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={isLoading}
+                  loadingLabel="Verifying..."
+                  disabled={!productId}
+                  type="button"
+                  className="btn-primary w-full"
                 >
-                  {isLoading ? 'Verifying...' : 'Verify Product'}
-                </button>
+                  Verify Product
+                </LoadingButton>
               </div>
             </div>
 
@@ -151,6 +164,7 @@ export default function Verify() {
               {!isScanning ? (
                 <button
                   onClick={startScanning}
+                  type="button"
                   className="btn-outline w-full"
                 >
                   Start Camera
@@ -163,6 +177,7 @@ export default function Verify() {
                   />
                   <button
                     onClick={stopScanning}
+                    type="button"
                     className="btn-secondary w-full"
                   >
                     Stop Scanning
@@ -175,39 +190,20 @@ export default function Verify() {
 
         {/* Error Message */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-caution/20 border border-caution text-caution rounded-lg p-6 mb-8"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠</span>
-              <div>
-                <h3 className="font-semibold mb-1">Error</h3>
-                <p>{error}</p>
-              </div>
-            </div>
-          </motion.div>
+          <div className="mb-8">
+            <ErrorMessage error={error} />
+          </div>
         )}
 
         {/* Loading State */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <div className="inline-block w-16 h-16 border-4 border-signal/30 border-t-signal rounded-full animate-spin mb-4" />
-            <p className="text-fog">Verifying product...</p>
-          </motion.div>
-        )}
+        {isLoading && <ResultSkeleton />}
 
         {/* Verification Result */}
         {result && (
           <div>
             <VerificationResult result={result} />
             <div className="text-center mt-8">
-              <button onClick={handleReset} className="btn-outline">
+              <button onClick={handleReset} type="button" className="btn-outline">
                 Verify Another Product
               </button>
             </div>

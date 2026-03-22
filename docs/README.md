@@ -34,6 +34,7 @@ Development roadmap, repository structure, and setup guides.
 - [Product Concept](./product/concept.md)
 - [Smart Contracts Overview](./contracts/README.md)
 - [Development Roadmap](./development/roadmap.md)
+- [Testing Guide](./development/testing.md)
 
 ---
 
