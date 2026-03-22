@@ -44,6 +44,12 @@ export default function Header() {
             <NavLink to="/transfer" active={isActive('/transfer')}>
               Transfer
             </NavLink>
+            <NavLink to="/batch-register" active={isActive('/batch-register')}>
+              Batch
+            </NavLink>
+            <NavLink to="/dashboard" active={isActive('/dashboard')}>
+              Analytics
+            </NavLink>
             <WalletConnect />
           </div>
         </div>
@@ -61,6 +67,12 @@ export default function Header() {
           </NavLink>
           <NavLink to="/transfer" active={isActive('/transfer')}>
             Transfer
+          </NavLink>
+          <NavLink to="/batch-register" active={isActive('/batch-register')}>
+            Batch
+          </NavLink>
+          <NavLink to="/dashboard" active={isActive('/dashboard')}>
+            Analytics
           </NavLink>
         </div>
       </nav>
