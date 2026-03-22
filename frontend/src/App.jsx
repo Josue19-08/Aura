@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SkipLink } from '@components/AccessibleComponents'
+import BackgroundLighting from '@components/BackgroundLighting'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import KeyboardHelpDialog from '@components/KeyboardHelpDialog'
@@ -59,16 +60,17 @@ function App() {
   return (
     <Router>
       <SkipLink />
+      <BackgroundLighting />
       <KeyboardHelpDialog
         open={isKeyboardHelpOpen}
         onClose={() => setIsKeyboardHelpOpen(false)}
       />
-      <div className="min-h-screen bg-void text-white font-sans flex flex-col">
+      <div className="min-h-screen text-white font-sans flex flex-col">
         <Header onOpenKeyboardHelp={() => setIsKeyboardHelpOpen(true)} />
         <motion.main
           id="main-content"
           tabIndex="-1"
-          className="flex-grow"
+          className="flex-grow relative z-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
